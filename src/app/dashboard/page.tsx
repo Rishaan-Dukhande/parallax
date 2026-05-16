@@ -1,5 +1,6 @@
 'use client'
 import Sidebar from '@/components/layout/Sidebar'
+import TopBar from '@/components/layout/TopBar'
 
 const MISSIONS = [
   { icon: '◎', title: 'Wave-Particle Duality Analysis', desc: 'Simulate the double-slit experiment using 5 different photon configurations', xp: 450, progress: 50 },
@@ -11,28 +12,10 @@ export default function DashboardPage() {
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-base)' }}>
       <Sidebar />
-      <main style={{ marginLeft: 'var(--sidebar-width)', flex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ marginLeft: 'var(--sidebar-width)', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <TopBar title="PARALLAX COMMAND" activeTab="Velocity" />
+        <main style={{ flex: 1, padding: '40px' }}>
 
-        {/* Top Bar */}
-        <div style={{ borderBottom: '1px solid var(--border)', padding: '0 40px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>⊞</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: 2, fontFamily: 'JetBrains Mono, monospace' }}>PARALLAX COMMAND</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-            {['Velocity', 'Mass', 'Energy', 'Entropy'].map((tab, i) => (
-              <span key={tab} style={{ fontSize: 12, color: i === 0 ? 'var(--cyan)' : 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer', borderBottom: i === 0 ? '1px solid var(--cyan)' : 'none', paddingBottom: 2 }}>{tab}</span>
-            ))}
-            <div style={{ width: 1, height: 20, background: 'var(--border)' }} />
-            <span style={{ fontSize: 18, cursor: 'pointer' }}>🔔</span>
-            <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--cyan-dim)', border: '1px solid var(--cyan)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>👤</div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div style={{ padding: '40px', flex: 1 }}>
-
-          {/* Greeting */}
           <div style={{ marginBottom: 32 }}>
             <h1 style={{ fontSize: 36, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 6 }}>
               Welcome back, Sandeep ⚡
@@ -42,10 +25,7 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          {/* Stat Cards Row */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, marginBottom: 40 }}>
-
-            {/* XP Card */}
             <div className="glass-card" style={{ padding: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                 <span style={{ fontSize: 11, color: 'var(--cyan)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1 }}>LEVEL 12 PROGRESSION</span>
@@ -58,7 +38,6 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Streak Card */}
             <div className="glass-card" style={{ padding: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                 <span style={{ fontSize: 11, color: 'var(--orange)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1 }}>STABILITY STREAK</span>
@@ -68,7 +47,6 @@ export default function DashboardPage() {
               <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1 }}>CONSISTENT OBSERVATION PROTOCOL</div>
             </div>
 
-            {/* League Card */}
             <div className="glass-card glass-card-purple" style={{ padding: 24 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
                 <span style={{ fontSize: 11, color: 'var(--purple)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1 }}>QUASAR LEAGUE</span>
@@ -79,10 +57,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Bottom Two Columns */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 24 }}>
-
-            {/* Missions */}
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
                 <h2 style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-primary)', letterSpacing: 2, fontFamily: 'JetBrains Mono, monospace' }}>TODAY'S MISSIONS</h2>
@@ -112,18 +87,15 @@ export default function DashboardPage() {
               </div>
             </div>
 
-            {/* Boss Battle */}
             <div className="glass-card glass-card-red" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
               <div style={{ height: 180, background: 'radial-gradient(ellipse at center, #3D0015 0%, #1A000A 60%, var(--bg-card) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 64, position: 'relative' }}>
                 <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, var(--red-dim) 0%, transparent 70%)', animation: 'pulse-red 2s ease-in-out infinite' }} />
                 🌑
               </div>
               <div style={{ padding: 24, flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 10, color: 'var(--red)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 2, marginBottom: 8 }}>⚡ BOSS BATTLE</div>
+                <div style={{ fontSize: 10, color: 'var(--red)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 2, marginBottom: 8 }}>⚡ PARALLAX BATTLE</div>
                 <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 12 }}>Singularity Siege</div>
-                <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16, flex: 1 }}>
-                  A massive gravitational distortion has been detected in Sector 4-B. Coordinate with other physicists to stabilize the event horizon before information loss occurs.
-                </div>
+                <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 16, flex: 1 }}>A massive gravitational distortion has been detected in Sector 4-B. Coordinate with other navigators to stabilize the event horizon before information loss occurs.</div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
                   <div>
                     <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', marginBottom: 2 }}>Threat Level</div>
@@ -135,7 +107,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
-                  {['👤', '👤', '👤', '🔴'].map((a, i) => (
+                  {['👤','👤','👤','🔴'].map((a, i) => (
                     <div key={i} style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--bg-surface-hi)', border: '1px solid var(--border-hi)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>{a}</div>
                   ))}
                 </div>
@@ -144,10 +116,9 @@ export default function DashboardPage() {
                 </button>
               </div>
             </div>
-
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   )
 }

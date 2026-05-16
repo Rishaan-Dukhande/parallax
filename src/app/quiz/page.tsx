@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Sidebar from '@/components/layout/Sidebar'
+import TopBar from '@/components/layout/TopBar'
 
 // ─────────────────────────────────────────────
 // DATA
@@ -230,19 +231,7 @@ export default function QuizPage() {
 
       <main style={{ marginLeft: 'var(--sidebar-width)', flex: 1, display: 'flex', flexDirection: 'column' }}>
 
-        {/* TOP BAR */}
-        <div style={{ borderBottom: '1px solid var(--border)', padding: '0 40px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 14 }}>⚡</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--cyan)', letterSpacing: 2, fontFamily: 'JetBrains Mono, monospace' }}>ADAPTIVE QUIZ — NEWTON'S LAWS</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono, monospace' }}>
-              Score: <span style={{ color: 'var(--cyan)' }}>{score} XP</span>
-            </span>
-            <span style={{ fontSize: 12, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>VELOCITY</span>
-          </div>
-        </div>
+        <TopBar title="PARALLAX QUIZ" activeTab="Mass" />
 
         {/* CONTENT AREA — splits into main quiz + optional AI drawer */}
         <div style={{ flex: 1, display: 'flex' }}>
