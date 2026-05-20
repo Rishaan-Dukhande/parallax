@@ -228,7 +228,7 @@ export default function LearnPage() {
       setContent(data)
       setPhase('intro')
     } catch (err) {
-      setError('Failed to load lesson. Check your API key in .env.local.')
+      setError(`Lesson ${lessonId} not found or API error. Make sure your ANTHROPIC_API_KEY is set in .env.local`)
       setPhase('loading')
     }
   }

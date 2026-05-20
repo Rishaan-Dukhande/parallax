@@ -495,9 +495,18 @@ export default function GalaxyPage() {
                         style={{ cursor: sub.state === 'locked' ? 'default' : 'pointer' }}
                         onClick={(e) => {
                           e.stopPropagation()
-                          if (sub.state !== 'locked') setSelectedSubUnit(sub.id === selectedSubUnit ? null : sub.id)
+                          if (sub.state !== 'locked') {
+                            setSelectedSubUnit(sub.id === selectedSubUnit ? null : sub.id)
+                          }
                         }}
                       >
+                        <circle
+                          cx={pos.x}
+                          cy={pos.y}
+                          r={nodeRadius + 6}
+                          fill="transparent"
+                          stroke="none"
+                        />
                         {/* Glow ring */}
                         {(isSelected || sub.state === 'active') && (
                           <circle cx={pos.x} cy={pos.y} r={nodeRadius + 3}
@@ -712,6 +721,15 @@ export default function GalaxyPage() {
                   ))}
                 </div>
                 <div style={{ marginTop: 'auto' }}>
+                  <div style={{ background: 'var(--bg-surface-hi)', border: '1px solid var(--border)', borderRadius: 4, padding: '12px 16px', marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1, marginBottom: 6 }}>YOUR MASTERY SCORE</div>
+                      <div style={{ height: 4, width: 160, background: 'var(--border)', borderRadius: 2 }}>
+                        <div style={{ height: '100%', width: '67%', background: 'linear-gradient(90deg, var(--cyan), var(--purple))', borderRadius: 2, boxShadow: '0 0 6px var(--cyan-glow)' }} />
+                      </div>
+                    </div>
+                    <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--cyan)', fontFamily: 'JetBrains Mono, monospace' }}>67</div>
+                  </div>
                   <button
                     onClick={() => router.push(`/learn/${zoomedUnit}/${activeSubUnit.id}`)}
                     disabled={activeSubUnit.state === 'locked'}
