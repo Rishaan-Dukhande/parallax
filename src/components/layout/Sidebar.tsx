@@ -35,6 +35,22 @@ export default function Sidebar() {
         <button style={{ width: '100%', padding: '10px', background: 'transparent', border: '1px solid var(--cyan)', borderRadius: 4, color: 'var(--cyan)', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer' }}>ENTER PARALLAX</button>
       </div>
       <div style={{ height: 1, background: 'var(--border)', margin: '0 16px 16px' }} />
+      <div style={{ padding: '0 16px 12px', display: 'flex', gap: 12 }}>
+        <div style={{ flex: 1, background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: 4, padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 14 }}>🪙</span>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: '#FFD700', fontFamily: 'JetBrains Mono, monospace' }}>2,450</div>
+            <div style={{ fontSize: 8, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1 }}>COINS</div>
+          </div>
+        </div>
+        <div style={{ flex: 1, background: 'var(--cyan-dim)', border: '1px solid var(--cyan)', borderRadius: 4, padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ fontSize: 14 }}>⚡</span>
+          <div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: 'var(--cyan)', fontFamily: 'JetBrains Mono, monospace' }}>3,240</div>
+            <div style={{ fontSize: 8, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1 }}>XP</div>
+          </div>
+        </div>
+      </div>
       <div style={{ padding: '0 16px', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
         <div style={{ width: 36, height: 36, borderRadius: 4, background: 'var(--cyan-dim)', border: '1px solid var(--cyan)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🛡</div>
         <div>
