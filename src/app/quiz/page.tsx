@@ -208,6 +208,8 @@ function QuizContent() {
             question: question.question,
             concept: question.concept,
             difficulty: question.difficulty,
+            questionNumber: currentQ + 1,
+            totalQuestions: questions.length,
           },
           masteryScore,
           correctCount,
@@ -245,6 +247,8 @@ function QuizContent() {
 
   const handleOpenDrawer = () => {
     setDrawerOpen(true)
+    // Always start fresh for THIS question
+    // Never carry over context from previous questions
     if (conversation.length === 0 && !hintLoading) {
       handleSendMessage('Give me a hint for this question')
     }
