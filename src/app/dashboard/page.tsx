@@ -3,9 +3,9 @@ import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 
 const MISSIONS = [
-  { icon: '◎', title: 'Wave-Particle Duality Analysis', desc: 'Simulate the double-slit experiment using 5 different photon configurations', xp: 450, progress: 50 },
-  { icon: '⊕', title: 'Entropy Gradient Mapping', desc: 'Calibrate the heat-sink sensors in the virtual thermodynamics lab', xp: 320, progress: 25 },
-  { icon: '△', title: 'Gravity Well Stabilization', desc: 'Apply general relativity tensors to correct the orbital decay simulation', xp: 600, progress: 0 },
+  { icon: '◎', title: 'Wave-Particle Duality Analysis', desc: 'Simulate the double-slit experiment using 5 different photon configurations', xp: 450, progress: 50, href: '/learn/3/303' },
+  { icon: '⊕', title: 'Entropy Gradient Mapping', desc: 'Calibrate the heat-sink sensors in the virtual thermodynamics lab', xp: 320, progress: 25, href: '/quiz' },
+  { icon: '△', title: 'Gravity Well Stabilization', desc: 'Apply general relativity tensors to correct the orbital decay simulation', xp: 600, progress: 0, href: '/learn/5/501' },
 ]
 
 export default function DashboardPage() {
@@ -65,7 +65,7 @@ export default function DashboardPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {MISSIONS.map((m, i) => (
-                  <div key={i} className="glass-card" style={{ padding: '20px 24px' }}>
+                  <div key={i} className="glass-card" style={{ padding: '20px 24px', cursor: 'pointer' }} onClick={() => window.location.href = m.href}>
                     <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
                       <div style={{ width: 40, height: 40, borderRadius: 4, background: 'var(--cyan-dim)', border: '1px solid var(--border-hi)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{m.icon}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
