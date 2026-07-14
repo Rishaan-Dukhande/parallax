@@ -149,6 +149,40 @@ const typeColor = (type: string) => ({
   lesson: '#00F0FF', intermediate: '#FF6B2B', boss: '#FF0044',
 }[type] || '#00F0FF')
 
+async function fetchUserStars(): Promise<Record<number, number>> {
+  try {
+    const res = await fetch('/api/progress/stars')
+    if (!res.ok) return {}
+    return await res.json()
+  } catch {
+    return {}
+  }
+}
+
+function getLessonVisualState(
+  lessonId: number,
+  userStars: Record<number, number>,
+  hardcodedState: string
+): { state: 'done' | 'active' | 'locked' | 'newly-unlocked', stars: number } {
+  const stars = userStars[lessonId] || 0
+  const lessonNum = lessonId % 100
+
+  if (stars >= 2) return { state: 'done', stars }
+
+  if (lessonNum === 1) {
+    return { state: stars >= 1 ? 'active' : 'newly-unlocked', stars }
+  }
+
+  const previousId = lessonId - 1
+  const previousStars = userStars[previousId] || 0
+
+  if (previousStars >= 2) {
+    return { state: stars >= 1 ? 'active' : 'newly-unlocked', stars }
+  }
+
+  return { state: 'locked', stars }
+}
+
 export default function GalaxyPage() {
   const router = useRouter()
   const svgRef = useRef<SVGSVGElement>(null)
@@ -158,6 +192,17 @@ export default function GalaxyPage() {
   const [zoomedUnit, setZoomedUnit] = useState<number | null>(null)
   const [isZooming, setIsZooming] = useState(false)
   const [showBossAnimation, setShowBossAnimation] = useState(false)
+  const [userStars, setUserStars] = useState<Record<number, number>>({})
+
+  useEffect(() => {
+    fetchUserStars().then(stars => setUserStars(stars))
+
+    const handleUpdate = () => {
+      fetchUserStars().then(stars => setUserStars(stars))
+    }
+    window.addEventListener('progress-updated', handleUpdate)
+    return () => window.removeEventListener('progress-updated', handleUpdate)
+  }, [])
 
   // Pan state for scrollable canvas
   const [pan, setPan] = useState({ x: -10, y: -10 })
@@ -167,6 +212,9 @@ export default function GalaxyPage() {
   const activeUnit = UNITS.find(u => u.id === selectedUnit)
   const zoomedUnitData = UNITS.find(u => u.id === zoomedUnit)
   const activeSubUnit = zoomedUnitData?.subUnits.find(s => s.id === selectedSubUnit)
+  const activeSubUnitVisual = activeSubUnit
+    ? getLessonVisualState(activeSubUnit.id, userStars, activeSubUnit.state)
+    : null
 
   // Calculate star positions for current zoomed unit
   const subPositions = zoomedUnitData
@@ -175,7 +223,10 @@ export default function GalaxyPage() {
 
   // Check if all lessons in zoomed unit are done (enables boss)
   const allLessonsDone = zoomedUnitData
-    ? zoomedUnitData.subUnits.every(s => s.state === 'done')
+    ? zoomedUnitData.subUnits.every(s => {
+        const { state } = getLessonVisualState(s.id, userStars, s.state)
+        return state === 'done'
+      })
     : false
 
   // Boss ring radius — wraps the entire constellation
@@ -468,7 +519,9 @@ export default function GalaxyPage() {
                   {/* Lines from center to each sub-unit */}
                   {subPositions.slice(1).map((pos, i) => {
                     const sub = zoomedUnitData.subUnits[i + 1]
-                    const isLit = zoomedUnitData.subUnits[0].state !== 'locked' && sub.state !== 'locked'
+                    const { state: centerState } = getLessonVisualState(zoomedUnitData.subUnits[0].id, userStars, zoomedUnitData.subUnits[0].state)
+                    const { state: subState } = getLessonVisualState(sub.id, userStars, sub.state)
+                    const isLit = centerState !== 'locked' && subState !== 'locked'
                     return (
                       <line key={i}
                         x1={50} y1={50}
@@ -486,16 +539,18 @@ export default function GalaxyPage() {
                     const pos = subPositions[index]
                     const isSelected = selectedSubUnit === sub.id
                     const isCenter = index === 0
-                    const color = sub.state === 'locked' ? '#2A2D40' : typeColor(sub.type)
+                    // Derive effective state from real Supabase stars + sequential unlock logic
+                    const { state: effectiveState, stars: realStars } = getLessonVisualState(sub.id, userStars, sub.state)
+                    const color = effectiveState === 'locked' ? '#2A2D40' : effectiveState === 'newly-unlocked' ? '#FF0044' : typeColor(sub.type)
                     const isIntermediate = sub.type === 'intermediate'
                     const nodeRadius = isCenter ? 6 : isIntermediate ? 3.5 : 4.5
 
                     return (
                       <g key={sub.id}
-                        style={{ cursor: sub.state === 'locked' ? 'default' : 'pointer' }}
+                        style={{ cursor: effectiveState === 'locked' ? 'default' : 'pointer' }}
                         onClick={(e) => {
                           e.stopPropagation()
-                          if (sub.state !== 'locked') {
+                          if (effectiveState !== 'locked') {
                             setSelectedSubUnit(sub.id === selectedSubUnit ? null : sub.id)
                           }
                         }}
@@ -508,7 +563,7 @@ export default function GalaxyPage() {
                           stroke="none"
                         />
                         {/* Glow ring */}
-                        {(isSelected || sub.state === 'active') && (
+                        {(isSelected || effectiveState === 'active') && (
                           <circle cx={pos.x} cy={pos.y} r={nodeRadius + 3}
                             fill="none" stroke={color} strokeWidth="0.5" strokeOpacity="0.3"
                             style={{ animation: 'pulse-glow 2s ease-in-out infinite' }}
@@ -517,15 +572,15 @@ export default function GalaxyPage() {
 
                         {/* Node circle */}
                         <circle cx={pos.x} cy={pos.y} r={nodeRadius}
-                          fill={sub.state === 'locked' ? '#0F1120' : `${color}22`}
+                          fill={effectiveState === 'locked' ? '#0F1120' : `${color}22`}
                           stroke={color}
                           strokeWidth={isSelected ? 1 : isCenter ? 0.8 : 0.5}
                           strokeDasharray={isIntermediate ? '1 0.5' : 'none'}
-                          filter={sub.state !== 'locked' ? 'url(#glow-cyan)' : undefined}
+                          filter={effectiveState !== 'locked' ? 'url(#glow-cyan)' : undefined}
                         />
 
                         {/* Center node has a special ring */}
-                        {isCenter && sub.state !== 'locked' && (
+                        {isCenter && effectiveState !== 'locked' && (
                           <circle cx={pos.x} cy={pos.y} r={nodeRadius + 1.5}
                             fill="none" stroke={color}
                             strokeWidth="0.3" strokeOpacity="0.4"
@@ -538,7 +593,7 @@ export default function GalaxyPage() {
                           fontSize={isCenter ? 4 : 3}
                           fill={color} fontWeight="bold"
                         >
-                          {sub.state === 'done' ? '✓' : sub.state === 'active' ? '⚡' : isIntermediate ? '↗' : '🔒'}
+                          {effectiveState === 'done' ? '✓' : effectiveState === 'newly-unlocked' ? '🔓' : effectiveState === 'active' ? '⚡' : isIntermediate ? '↗' : '🔒'}
                         </text>
 
                         {/* Label — pushed further out for outer nodes */}
@@ -546,14 +601,14 @@ export default function GalaxyPage() {
                           x={pos.x}
                           y={pos.y + nodeRadius + (isCenter ? 4 : 3) + 2}
                           textAnchor="middle" fontSize="2.6"
-                          fill={sub.state === 'locked' ? '#3D4266' : '#E8EEFF'}
+                          fill={effectiveState === 'locked' ? '#3D4266' : '#E8EEFF'}
                           fontFamily="JetBrains Mono, monospace"
                         >
                           {sub.name}
                         </text>
 
                         {/* Type tag for intermediate */}
-                        {isIntermediate && sub.state !== 'locked' && (
+                        {isIntermediate && effectiveState !== 'locked' && (
                           <text x={pos.x} y={pos.y + nodeRadius + 8}
                             textAnchor="middle" fontSize="2"
                             fill={color} fontFamily="JetBrains Mono, monospace"
@@ -655,15 +710,18 @@ export default function GalaxyPage() {
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10, fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1 }}>LESSONS IN THIS UNIT</div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {activeUnit.subUnits.map(sub => (
-                      <div key={sub.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 10px', background: 'var(--bg-surface-hi)', borderRadius: 4, border: `1px solid ${sub.state === 'locked' ? 'var(--border)' : typeColor(sub.type) + '44'}` }}>
-                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: sub.state === 'locked' ? 'var(--border-hi)' : typeColor(sub.type), flexShrink: 0 }} />
-                        <span style={{ fontSize: 11, color: sub.state === 'locked' ? 'var(--text-muted)' : 'var(--text-primary)', flex: 1 }}>{sub.name}</span>
+                    {activeUnit.subUnits.map(sub => {
+                      const { state: subEffectiveState, stars: subRealStars } = getLessonVisualState(sub.id, userStars, sub.state)
+                      return (
+                      <div key={sub.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 10px', background: 'var(--bg-surface-hi)', borderRadius: 4, border: `1px solid ${subEffectiveState === 'locked' ? 'var(--border)' : typeColor(sub.type) + '44'}` }}>
+                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: subEffectiveState === 'locked' ? 'var(--border-hi)' : typeColor(sub.type), flexShrink: 0 }} />
+                        <span style={{ fontSize: 11, color: subEffectiveState === 'locked' ? 'var(--text-muted)' : 'var(--text-primary)', flex: 1 }}>{sub.name}</span>
                         <span style={{ fontSize: 9, color: typeColor(sub.type), fontFamily: 'JetBrains Mono, monospace' }}>
-                          {sub.state === 'done' ? '✓' : sub.state === 'active' ? '▶' : '🔒'}
+                          {subEffectiveState === 'done' ? '✓' : subEffectiveState === 'active' ? '▶' : '🔒'}
                         </span>
                       </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
                 <div style={{ background: 'var(--cyan-dim)', border: '1px solid var(--cyan)', borderRadius: 4, padding: '10px 14px', marginBottom: 16, fontSize: 11, color: 'var(--cyan)', fontFamily: 'JetBrains Mono, monospace' }}>
@@ -732,18 +790,18 @@ export default function GalaxyPage() {
                   </div>
                   <button
                     onClick={() => router.push(`/learn/${zoomedUnit}/${activeSubUnit.id}`)}
-                    disabled={activeSubUnit.state === 'locked'}
+                    disabled={activeSubUnitVisual?.state === 'locked'}
                     style={{
                       width: '100%', padding: '14px',
-                      background: activeSubUnit.state === 'locked' ? 'var(--border)' : typeColor(activeSubUnit.type),
+                      background: activeSubUnitVisual?.state === 'locked' ? 'var(--border)' : typeColor(activeSubUnit.type),
                       border: 'none', borderRadius: 4,
-                      color: activeSubUnit.state === 'locked' ? 'var(--text-muted)' : 'var(--bg-base)',
+                      color: activeSubUnitVisual?.state === 'locked' ? 'var(--text-muted)' : 'var(--bg-base)',
                       fontSize: 14, fontWeight: 900, letterSpacing: 2,
                       fontFamily: 'JetBrains Mono, monospace',
-                      cursor: activeSubUnit.state === 'locked' ? 'not-allowed' : 'pointer',
-                      boxShadow: activeSubUnit.state !== 'locked' ? `0 0 20px ${typeColor(activeSubUnit.type)}66` : 'none',
+                      cursor: activeSubUnitVisual?.state === 'locked' ? 'not-allowed' : 'pointer',
+                      boxShadow: activeSubUnitVisual?.state !== 'locked' ? `0 0 20px ${typeColor(activeSubUnit.type)}66` : 'none',
                     }}>
-                    {activeSubUnit.state === 'locked' ? '🔒 LOCKED' : 'START LESSON →'}
+                    {activeSubUnitVisual?.state === 'locked' ? '🔒 LOCKED' : activeSubUnitVisual?.state === 'newly-unlocked' ? '🔓 START LESSON →' : 'START LESSON →'}
                   </button>
                 </div>
               </div>

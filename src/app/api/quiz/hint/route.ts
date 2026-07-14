@@ -27,7 +27,7 @@ Tone: encouraging, witty, like a brilliant friend who happens to know physics.`
 
     // Use streaming so the hint appears word by word
     const stream = await client.messages.stream({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 200,
       system: 'You are Parallax AI — a witty, Socratic physics tutor. Never give direct answers. Always guide with questions. Be concise.',
       messages: [{ role: 'user', content: prompt }],

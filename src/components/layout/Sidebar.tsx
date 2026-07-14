@@ -1,6 +1,8 @@
 'use client'
+import { useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useProgress } from '@/hooks/useProgress'
 const NAV_ITEMS = [
   { label: 'Dashboard', href: '/dashboard', icon: '⊞' },
   { label: 'Progress Galaxy', href: '/galaxy', icon: '✦' },
@@ -11,6 +13,13 @@ const NAV_ITEMS = [
 ]
 export default function Sidebar() {
   const pathname = usePathname()
+  const { progress, loading } = useProgress()
+  // Debug — remove later
+  if (typeof window !== 'undefined') {
+    window.addEventListener('progress-updated', (e: Event) => {
+      console.log('Sidebar received progress update:', (e as CustomEvent).detail)
+    })
+  }
   return (
     <aside style={{ width: 'var(--sidebar-width)', minHeight: '100vh', background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, zIndex: 50 }}>
       <div style={{ padding: '28px 24px 20px' }}>
@@ -39,14 +48,14 @@ export default function Sidebar() {
         <div style={{ flex: 1, background: 'rgba(255,215,0,0.08)', border: '1px solid rgba(255,215,0,0.2)', borderRadius: 4, padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 14 }}>🪙</span>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 900, color: '#FFD700', fontFamily: 'JetBrains Mono, monospace' }}>2,450</div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: '#FFD700', fontFamily: 'JetBrains Mono, monospace' }}>{loading ? '…' : progress.coins.toLocaleString()}</div>
             <div style={{ fontSize: 8, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1 }}>COINS</div>
           </div>
         </div>
         <div style={{ flex: 1, background: 'var(--cyan-dim)', border: '1px solid var(--cyan)', borderRadius: 4, padding: '8px 10px', display: 'flex', alignItems: 'center', gap: 6 }}>
           <span style={{ fontSize: 14 }}>⚡</span>
           <div>
-            <div style={{ fontSize: 14, fontWeight: 900, color: 'var(--cyan)', fontFamily: 'JetBrains Mono, monospace' }}>3,240</div>
+            <div style={{ fontSize: 14, fontWeight: 900, color: 'var(--cyan)', fontFamily: 'JetBrains Mono, monospace' }}>{loading ? '…' : progress.xp.toLocaleString()}</div>
             <div style={{ fontSize: 8, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1 }}>XP</div>
           </div>
         </div>

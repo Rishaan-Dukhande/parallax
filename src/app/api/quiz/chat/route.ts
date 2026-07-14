@@ -24,9 +24,10 @@ export async function POST(request: NextRequest) {
 
 STUDENT PROFILE:
 - Mastery score: ${masteryScore}/100
-- Current quiz performance: ${correctCount}/${totalCount} correct so far
-- Current question: "${questionContext.question}"
-- Concept being tested: "${questionContext.concept}"
+- Lesson: "${questionContext.concept}"
+- Current section: "${questionContext.question}"
+- Full content the student is reading: "${questionContext.question}"
+- Quiz performance so far: ${correctCount}/${totalCount} correct
 - Difficulty: ${questionContext.difficulty}
 
 CURRENT PHASE: ${answerPhase}
@@ -71,7 +72,7 @@ ALWAYS:
 
     // Stream the response for real-time feel
     const stream = await client.messages.stream({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 300,
       system: systemPrompt,
       // Send the FULL conversation history — this is the Khanmigo pattern

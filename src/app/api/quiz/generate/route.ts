@@ -108,7 +108,7 @@ export async function POST(request: NextRequest) {
     } = body
 
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-5',
       max_tokens: 2000,
       system: `You are Parallax AI — an adaptive AP Physics quiz generator.
 Generate rigorous but fair questions appropriate for the student's mastery level.
