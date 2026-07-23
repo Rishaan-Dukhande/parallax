@@ -1,65 +1,162 @@
-import Image from "next/image";
+'use client'
+import { useRouter } from 'next/navigation'
 
-export default function Home() {
+export default function LandingPage() {
+  const router = useRouter()
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div style={{
+      minHeight: '100vh',
+      background: '#07080F',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* Star field */}
+      {Array.from({ length: 60 }, (_, i) => (
+        <div key={i} style={{
+          position: 'absolute',
+          left: `${(i * 37 + 11) % 100}%`,
+          top: `${(i * 53 + 7) % 100}%`,
+          width: i % 5 === 0 ? 2 : 1,
+          height: i % 5 === 0 ? 2 : 1,
+          borderRadius: '50%',
+          background: 'white',
+          opacity: 0.05 + (i % 5) * 0.04,
+        }} />
+      ))}
+
+      {/* Glow orb */}
+      <div style={{
+        position: 'absolute',
+        top: '30%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        width: 600,
+        height: 600,
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(0,240,255,0.06) 0%, transparent 70%)',
+        pointerEvents: 'none',
+      }} />
+
+      <div style={{ textAlign: 'center', maxWidth: 680, padding: '0 24px', position: 'relative', zIndex: 1 }}>
+
+        {/* Logo */}
+        <div style={{
+          fontSize: 13,
+          color: 'rgba(0,240,255,0.6)',
+          fontFamily: 'JetBrains Mono, monospace',
+          letterSpacing: 6,
+          marginBottom: 24,
+        }}>
+          ✦ PARALLAX LEARNING SYSTEM
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <h1 style={{
+          fontSize: 72,
+          fontWeight: 900,
+          color: '#E8EEFF',
+          marginBottom: 8,
+          fontFamily: 'Orbitron, monospace',
+          letterSpacing: 4,
+          textShadow: '0 0 60px rgba(0,240,255,0.3)',
+          lineHeight: 1.1,
+        }}>
+          PARALLAX
+        </h1>
+
+        <div style={{
+          fontSize: 18,
+          color: 'rgba(232,238,255,0.6)',
+          marginBottom: 16,
+          fontFamily: 'DM Sans, sans-serif',
+          letterSpacing: 2,
+        }}>
+          Master AP Physics C Through Combat
         </div>
-      </main>
+
+        <div style={{
+          fontSize: 13,
+          color: 'rgba(107,114,153,0.8)',
+          marginBottom: 56,
+          fontFamily: 'JetBrains Mono, monospace',
+          lineHeight: 1.8,
+        }}>
+          AI-powered lessons · Boss battles · Infinite drill mode<br />
+          Adaptive difficulty · Real AP Physics C content
+        </div>
+
+        {/* CTA buttons */}
+        <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 48 }}>
+          <button
+            onClick={() => router.push('/galaxy')}
+            style={{
+              padding: '16px 48px',
+              background: 'linear-gradient(135deg, #00F0FF, #9B5DFF)',
+              border: 'none',
+              borderRadius: 4,
+              color: '#07080F',
+              fontSize: 14,
+              fontWeight: 900,
+              letterSpacing: 2,
+              fontFamily: 'JetBrains Mono, monospace',
+              cursor: 'pointer',
+              boxShadow: '0 0 40px rgba(0,240,255,0.4)',
+            }}>
+            ⚡ START LEARNING
+          </button>
+          <button
+            onClick={() => router.push('/dashboard')}
+            style={{
+              padding: '16px 48px',
+              background: 'transparent',
+              border: '1px solid rgba(0,240,255,0.3)',
+              borderRadius: 4,
+              color: '#00F0FF',
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: 2,
+              fontFamily: 'JetBrains Mono, monospace',
+              cursor: 'pointer',
+            }}>
+            VIEW DASHBOARD
+          </button>
+        </div>
+
+        {/* Feature pills */}
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {[
+            { icon: '🦉', label: 'AI Tutor' },
+            { icon: '👾', label: 'Boss Battles' },
+            { icon: '⚡', label: 'Infinite Quiz' },
+            { icon: '🌌', label: 'Progress Galaxy' },
+            { icon: '🏆', label: 'Leaderboards' },
+          ].map(f => (
+            <div key={f.label} style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'rgba(255,255,255,0.04)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 20,
+              padding: '6px 14px',
+              fontSize: 12,
+              color: 'rgba(232,238,255,0.5)',
+              fontFamily: 'JetBrains Mono, monospace',
+            }}>
+              <span>{f.icon}</span>
+              <span>{f.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=JetBrains+Mono:wght@400;700&family=DM+Sans:wght@400;500&display=swap');
+      `}</style>
     </div>
-  );
+  )
 }

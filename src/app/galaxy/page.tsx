@@ -344,7 +344,7 @@ export default function GalaxyPage() {
                   <div style={{ fontSize: 14, color: '#FF0044', fontFamily: 'JetBrains Mono, monospace', fontWeight: 900, letterSpacing: 3 }}>BOSS DETECTED</div>
                   <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 8 }}>All lessons mastered. Face the Singularity.</div>
                   <button
-                    onClick={() => { setShowBossAnimation(false); router.push(`/learn/${zoomedUnit}/boss`) }}
+                    onClick={() => { setShowBossAnimation(false); router.push(`/boss/${zoomedUnit}`) }}
                     style={{
                       marginTop: 20, padding: '12px 32px',
                       background: '#FF0044', border: 'none', borderRadius: 4,

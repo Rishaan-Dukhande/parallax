@@ -214,7 +214,7 @@ export async function POST(request: NextRequest) {
       : Math.ceil((difficulty === 'easy' ? config.easyCount : difficulty === 'medium' ? config.mediumCount : config.hardCount) * 0.7)
 
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-5',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 3000,
       system: `You are an expert AP Physics question generator. Generate high-quality, distinct physics questions.
 Every answer choice must be specific — never use placeholder text like "Option A" or "First answer".
