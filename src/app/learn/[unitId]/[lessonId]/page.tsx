@@ -80,7 +80,7 @@ function StarDisplay({ count, total = 3, size = 24 }: { count: number; total?: n
 function MotionDiagram({ visualFocus }: { visualFocus?: string }) {
   const [ballX, setBallX] = useState(10)
   const [running, setRunning] = useState(false)
-  const animRef = useRef<number>()
+  const animRef = useRef<number | undefined>(undefined)
   useEffect(() => {
     if (running) {
       const animate = () => {
@@ -339,7 +339,7 @@ function ConservationDiagram({ visualFocus }: { visualFocus?: string }) {
 
   const [angle, setAngle] = useState(0)
   const [swinging, setSwinging] = useState(false)
-  const animRef = useRef<number>()
+  const animRef = useRef<number | undefined>(undefined)
   useEffect(() => {
     if (swinging) {
       const start = Date.now()
@@ -598,7 +598,7 @@ function MomentumDiagram({ visualFocus }: { visualFocus?: string }) {
 function OscillationDiagram() {
   const [time, setTime] = useState(0)
   const [running, setRunning] = useState(false)
-  const animRef = useRef<number>()
+  const animRef = useRef<number | undefined>(undefined)
   useEffect(() => {
     if (running) {
       const animate = () => { setTime(t => t + 0.05); animRef.current = requestAnimationFrame(animate) }
