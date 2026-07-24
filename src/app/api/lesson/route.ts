@@ -93,6 +93,14 @@ const LESSON_META: Record<string, {
     realWorldExample: 'Rocket exhaust pushes gas down, gas pushes rocket up — equal forces on different objects',
     apExamRelevance: 'Newton\'s 3rd Law explains propulsion, collisions, and why action-reaction pairs do NOT cancel in FBDs'
   },
+  '206': {
+    unitName: "Newton's Laws", lessonName: 'Friction & Normal Forces',
+    concept: 'friction as a contact force opposing relative motion: f = μN',
+    prerequisites: ["Newton's 2nd Law", 'free body diagrams'],
+    keyFacts: ['Kinetic friction: f_k = μ_k · N', 'Static friction: f_s ≤ μ_s · N (maximum, not constant)', 'Normal force is perpendicular to surface — not always mg'],
+    realWorldExample: 'A book sliding across a table decelerates because kinetic friction F = μN acts opposite to motion — heavier book means more N and more friction',
+    apExamRelevance: 'Friction is in most AP dynamics free response — always find N first, identify static vs kinetic, and draw it correctly on the FBD'
+  },
   '301': {
     unitName: 'Work & Energy', lessonName: 'What is Work?',
     concept: 'work as force times displacement in the same direction: W = F·d·cos(θ)',
@@ -126,12 +134,132 @@ const LESSON_META: Record<string, {
     apExamRelevance: 'Conservation of energy is the most powerful problem-solving tool in AP Physics — use it to skip force analysis'
   },
   '305': {
-    unitName: 'Work & Energy', lessonName: 'Work-Energy Theorem',
-    concept: 'net work done on an object equals its change in kinetic energy: W_net = ΔKE',
-    prerequisites: ['work', 'kinetic energy'],
-    keyFacts: ['W_net = ΔKE = ½mv² - ½mv₀²', 'Links forces directly to speed changes', 'Negative work slows objects down'],
-    realWorldExample: 'A baseball glove stopping a pitch — the glove does negative work, reducing the ball\'s KE to zero',
-    apExamRelevance: 'The work-energy theorem lets you find final speeds without using kinematics equations'
+    unitName: 'Work & Energy', lessonName: 'Power',
+    concept: 'power as the rate of doing work: P = dW/dt = Fv',
+    prerequisites: ['work', 'kinetic energy', 'velocity'],
+    keyFacts: ['P = W/t (average power)', 'P = Fv for constant force along velocity', 'SI unit: 1 Watt = 1 J/s'],
+    realWorldExample: 'A 100 W bulb uses 100 J every second — a car engine at highway speed outputs ~50,000–100,000 W to overcome air drag',
+    apExamRelevance: 'Power appears in AP free response when efficiency or rate of energy transfer is asked — P = Fv is the most tested form'
+  },
+  '401': {
+    unitName: 'Momentum', lessonName: 'What is Momentum?',
+    concept: 'momentum as mass in motion: p = mv',
+    prerequisites: ['velocity', 'Newton\'s 2nd Law'],
+    keyFacts: ['p = mv (vector, same direction as v)', 'Larger mass or velocity → more momentum', 'Momentum is conserved in isolated systems'],
+    realWorldExample: 'A bowling ball at 5 m/s is much harder to stop than a tennis ball at the same speed — it has far more momentum',
+    apExamRelevance: 'Momentum is the foundation of all collision problems — define the system and check if it is isolated before applying conservation'
+  },
+  '402': {
+    unitName: 'Momentum', lessonName: 'Impulse',
+    concept: 'impulse-momentum theorem: J = FΔt = Δp',
+    prerequisites: ['momentum', 'Newton\'s 2nd Law'],
+    keyFacts: ['J = FΔt = Δp', 'Impulse is the area under an F-t graph', 'Large force for short time = small force for long time (same impulse)'],
+    realWorldExample: 'Airbags increase collision time, reducing average force on the driver — same Δp, much smaller F',
+    apExamRelevance: 'Impulse appears on AP exams as F-t graphs (find area = impulse = Δp) and in problems where force and time are given instead of energy'
+  },
+  '403': {
+    unitName: 'Momentum', lessonName: 'Collisions',
+    concept: 'conservation of momentum in collisions: Σp_before = Σp_after',
+    prerequisites: ['momentum', 'impulse'],
+    keyFacts: ['Total momentum conserved in isolated systems', 'Perfectly inelastic: objects stick, maximum KE lost', 'm₁v₁ + m₂v₂ = (m₁+m₂)v_f'],
+    realWorldExample: 'Two carts on a frictionless track collide and stick — total momentum before equals total momentum after, even though KE is lost',
+    apExamRelevance: 'Momentum conservation in collisions is guaranteed AP free response material — identify elastic vs inelastic before setting up equations'
+  },
+  '404': {
+    unitName: 'Momentum', lessonName: 'Elastic Collisions',
+    concept: 'elastic collisions conserve both momentum AND kinetic energy',
+    prerequisites: ['collisions', 'kinetic energy'],
+    keyFacts: ['Both p and KE conserved', 'Solve system of two equations: Σp and ΣKE', 'Head-on equal-mass elastic: velocities exchange'],
+    realWorldExample: 'A cue ball stopping dead after hitting a stationary billiard ball — classic elastic collision where all momentum transfers',
+    apExamRelevance: 'AP elastic collision problems require two equations simultaneously — momentum AND KE. Watch for the equal-mass shortcut.'
+  },
+  '405': {
+    unitName: 'Momentum', lessonName: 'Center of Mass',
+    concept: 'center of mass as the mass-weighted average position: x_cm = Σmᵢxᵢ / M',
+    prerequisites: ['momentum', 'collisions'],
+    keyFacts: ['x_cm = Σmᵢxᵢ / M', 'External forces act as if applied at the center of mass', 'Internal forces cannot move the center of mass'],
+    realWorldExample: 'A wrench tossed through the air spins chaotically — but its center of mass traces a perfect parabola, following only gravity',
+    apExamRelevance: 'Center of mass connects to the system momentum: p_total = M·v_cm — expect it in AP problems with multiple-object systems'
+  },
+  '601': {
+    unitName: 'Oscillations', lessonName: 'Simple Harmonic Motion',
+    concept: 'SHM as motion with restoring force proportional to displacement: F = -kx',
+    prerequisites: ['Newton\'s 2nd Law', 'springs'],
+    keyFacts: ['F = -kx (restoring force)', 'x(t) = A cos(ωt + φ)', 'Period T = 2π/ω is independent of amplitude'],
+    realWorldExample: 'A mass on a spring oscillates forever without friction — the restoring force is always directed back toward equilibrium',
+    apExamRelevance: 'SHM is the gateway to all oscillation problems — define equilibrium, identify the restoring force, and write F = -kx'
+  },
+  '602': {
+    unitName: 'Oscillations', lessonName: 'Spring Forces',
+    concept: 'Hooke\'s Law and the period of a mass-spring system: T = 2π√(m/k)',
+    prerequisites: ['simple harmonic motion'],
+    keyFacts: ['F = -kx (Hooke\'s Law)', 'T = 2π√(m/k)', 'Larger k or smaller m → faster oscillation'],
+    realWorldExample: 'A stiff spring (large k) bounces a ball faster than a soft spring — stiffer means shorter period',
+    apExamRelevance: 'T = 2π√(m/k) is frequently tested — know what T depends on (m and k) and what it does NOT (amplitude, initial conditions)'
+  },
+  '603': {
+    unitName: 'Oscillations', lessonName: 'Pendulums',
+    concept: 'simple pendulum period depends only on length and g: T = 2π√(L/g)',
+    prerequisites: ['simple harmonic motion', 'Newton\'s Laws'],
+    keyFacts: ['T = 2π√(L/g)', 'Independent of mass and amplitude (small angles)', 'Restoring force is the tangential component of gravity'],
+    realWorldExample: 'A grandfather clock keeps time with a pendulum — doubling the pendulum length increases the period by √2, slowing the clock',
+    apExamRelevance: 'AP pendulum problems test T = 2π√(L/g) and the small-angle approximation — always confirm amplitude is small before using it'
+  },
+  '604': {
+    unitName: 'Oscillations', lessonName: 'Energy in SHM',
+    concept: 'total energy in SHM is conserved: E = ½kA² = ½mv² + ½kx²',
+    prerequisites: ['simple harmonic motion', 'conservation of energy'],
+    keyFacts: ['E = ½kA² (constant, set by amplitude)', 'At equilibrium x=0: all KE', 'At amplitude x=A: all PE, zero KE'],
+    realWorldExample: 'A pendulum at max height (A) has all PE and zero KE — at the bottom it has all KE — total energy never changes',
+    apExamRelevance: 'Energy in SHM is a classic multi-concept AP problem — combine conservation of energy with x(t) to find speed at any position'
+  },
+  '605': {
+    unitName: 'Oscillations', lessonName: 'Damped Oscillations',
+    concept: 'damping reduces amplitude over time; resonance occurs when driving frequency matches natural frequency',
+    prerequisites: ['energy in SHM', 'simple harmonic motion'],
+    keyFacts: ['Damping removes energy — amplitude decreases exponentially', 'Resonance: maximum amplitude when f_drive = f_natural', 'Critical damping returns to equilibrium fastest without oscillating'],
+    realWorldExample: 'Car shock absorbers are critically damped — they stop bouncing immediately. An untuned car oscillates on every speed bump.',
+    apExamRelevance: 'Damping and resonance are conceptual AP questions — understand why resonance produces large amplitudes and why critical damping is used in engineering'
+  },
+  '801': {
+    unitName: 'Rotation', lessonName: 'Angular Motion',
+    concept: 'angular displacement θ, velocity ω, and acceleration α are rotational analogues of x, v, a',
+    prerequisites: ['kinematics', 'velocity', 'acceleration'],
+    keyFacts: ['ω = dθ/dt, α = dω/dt', 'Same kinematic equations apply: ω = ω₀ + αt, θ = ω₀t + ½αt²', 'Linear and angular relate: v = rω, a_t = rα'],
+    realWorldExample: 'A spinning top: its angle θ changes at rate ω (angular velocity), which itself changes at rate α — exactly like linear kinematics',
+    apExamRelevance: 'Rotational kinematics mirrors linear kinematics exactly — AP problems require fluent switching between v/a and ω/α using v = rω'
+  },
+  '802': {
+    unitName: 'Rotation', lessonName: 'Torque',
+    concept: 'torque as the rotational analogue of force: τ = r × F = rF sin(θ)',
+    prerequisites: ['angular motion', 'Newton\'s 2nd Law', 'vectors'],
+    keyFacts: ['τ = rF sin(θ) where θ is angle between r and F', 'Torque is a cross product — direction by right-hand rule', 'Net torque causes angular acceleration: τ_net = Iα'],
+    realWorldExample: 'A longer wrench requires less force for the same torque — mechanics use this every day without thinking about it',
+    apExamRelevance: 'Torque is F=ma for rotation: τ=Iα — it appears in every AP rotational dynamics problem. Maximize torque by applying force perpendicular to r.'
+  },
+  '803': {
+    unitName: 'Rotation', lessonName: 'Moment of Inertia',
+    concept: 'moment of inertia I = Σmᵢrᵢ² measures resistance to angular acceleration',
+    prerequisites: ['torque', 'angular motion'],
+    keyFacts: ['I = Σmᵢrᵢ² (discrete) or ∫r² dm (continuous)', 'Parallel axis theorem: I = I_cm + Md²', 'Common values: ring mr², disk ½mr², solid sphere ⅖mr²'],
+    realWorldExample: 'Figure skaters pull in their arms to spin faster — reducing r decreases I, and conservation of angular momentum increases ω',
+    apExamRelevance: 'AP Physics C provides an I table — you must know which formula to pick for rings, disks, rods, and spheres, and when to use the parallel axis theorem'
+  },
+  '804': {
+    unitName: 'Rotation', lessonName: 'Angular Momentum',
+    concept: 'angular momentum L = Iω is conserved when net external torque is zero',
+    prerequisites: ['moment of inertia', 'torque'],
+    keyFacts: ['L = Iω', 'ΔL/Δt = τ_net', 'L is conserved when τ_net = 0 (isolated rotational system)'],
+    realWorldExample: 'A gyroscope resists tipping — any applied torque rotates the direction of L rather than changing its magnitude, causing precession',
+    apExamRelevance: 'Conservation of angular momentum is the rotational equivalent of momentum conservation — expect it on AP free response involving spinning systems'
+  },
+  '805': {
+    unitName: 'Rotation', lessonName: 'Rolling Motion',
+    concept: 'rolling without slipping combines rotation and translation: v_cm = Rω',
+    prerequisites: ['angular momentum', 'kinetic energy', 'moment of inertia'],
+    keyFacts: ['v_cm = Rω (rolling constraint)', 'KE_total = ½mv_cm² + ½Iω²', 'Objects with smaller I/MR² ratio reach bottom of ramp first'],
+    realWorldExample: 'A solid ball and a hollow sphere released from the same ramp height — the solid ball wins because its KE is less concentrated in rotation',
+    apExamRelevance: 'Rolling motion problems combine translational and rotational KE — use energy conservation with both ½mv² and ½Iω² terms, then apply v = Rω'
   },
 }
 

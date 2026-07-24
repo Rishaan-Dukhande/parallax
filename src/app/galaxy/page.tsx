@@ -3,6 +3,56 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
+import { UNIT_CONSTELLATIONS } from '@/lib/constellations'
+
+// ─────────────────────────────────────────────
+// SPIRAL MATH — outer galaxy layout
+// Archimedean: r = A + B·φ, nodes at equal Δφ
+// ─────────────────────────────────────────────
+const SPIRAL_A = 14, SPIRAL_B = 4.5
+const SPIRAL_CX = 55, SPIRAL_CY = 53
+const SPIRAL_THETA = -Math.PI / 2           // start pointing up
+const SPIRAL_PHI_STEP = (2.5 * Math.PI) / 7 // ~64° per node
+// Unit IDs in spiral order, center → outer
+const SPIRAL_ORDER = [1, 2, 3, 4, 5, 8, 6, 7]
+
+function spiralPt(phi: number) {
+  const r = SPIRAL_A + SPIRAL_B * phi
+  const theta = SPIRAL_THETA + phi
+  const x = SPIRAL_CX + r * Math.cos(theta)
+  const y = SPIRAL_CY + r * Math.sin(theta)
+  // Unit tangent along spiral
+  const tx = SPIRAL_B * Math.cos(theta) - r * Math.sin(theta)
+  const ty = SPIRAL_B * Math.sin(theta) + r * Math.cos(theta)
+  const tLen = Math.sqrt(tx * tx + ty * ty) || 1
+  return { x, y, tx: tx / tLen, ty: ty / tLen }
+}
+
+// Cubic-bezier path that smoothly follows the spiral between node indices i and j
+function spiralSeg(i: number, j: number): string {
+  const p0 = spiralPt(i * SPIRAL_PHI_STEP)
+  const p3 = spiralPt(j * SPIRAL_PHI_STEP)
+  const chord = Math.sqrt((p3.x - p0.x) ** 2 + (p3.y - p0.y) ** 2)
+  const t = chord * 0.38
+  return [
+    `M ${p0.x.toFixed(1)} ${p0.y.toFixed(1)}`,
+    `C ${(p0.x + t * p0.tx).toFixed(1)} ${(p0.y + t * p0.ty).toFixed(1)}`,
+    `  ${(p3.x - t * p3.tx).toFixed(1)} ${(p3.y - t * p3.ty).toFixed(1)}`,
+    `  ${p3.x.toFixed(1)} ${p3.y.toFixed(1)}`,
+  ].join(' ')
+}
+
+// Outward-curving arc for unlock indicator lines (purple)
+function unlockArc(ax: number, ay: number, bx: number, by: number): string {
+  const mx = (ax + bx) / 2, my = (ay + by) / 2
+  const dx = bx - ax, dy = by - ay
+  const len = Math.sqrt(dx * dx + dy * dy) || 1
+  const p1x = dy / len, p1y = -dx / len
+  const dot = (SPIRAL_CX - mx) * p1x + (SPIRAL_CY - my) * p1y
+  const cpx = (mx + 8 * (dot >= 0 ? -p1x : p1x)).toFixed(1)
+  const cpy = (my + 8 * (dot >= 0 ? -p1y : p1y)).toFixed(1)
+  return `M ${ax} ${ay} Q ${cpx} ${cpy} ${bx} ${by}`
+}
 
 // ─────────────────────────────────────────────
 // HELPER: Calculate star-branch positions
@@ -27,7 +77,7 @@ function getStarPositions(count: number, radius = 28) {
 // ─────────────────────────────────────────────
 const UNITS = [
   {
-    id: 1, name: 'Kinematics', x: 28, y: 28,
+    id: 1, name: 'Kinematics', x: 55, y: 39,
     state: 'done', mastery: 94,
     concepts: '5/5', labs: '3/3', assessment: 96,
     unlocks: [2, 3], prereqs: [],
@@ -43,24 +93,22 @@ const UNITS = [
     bossState: 'done',
   },
   {
-    id: 2, name: "Newton's Laws", x: 44, y: 52,
+    id: 2, name: "Newton's Laws", x: 72, y: 45,
     state: 'done', mastery: 81,
     concepts: '5/5', labs: '2/3', assessment: 82,
     unlocks: [4, 5], prereqs: [1],
     description: 'Force, mass, and acceleration — the rules that govern every push and pull.',
     unlockNote: 'Unlocks: Momentum + Universal Gravity',
     subUnits: [
-      { id: 201, name: 'Force Basics', state: 'done', type: 'lesson' },
-      { id: 202, name: 'Free Body Diagrams', state: 'done', type: 'lesson' },
       { id: 203, name: "Newton's 1st Law", state: 'done', type: 'lesson' },
       { id: 204, name: "Newton's 2nd Law", state: 'active', type: 'lesson' },
       { id: 205, name: "Newton's 3rd Law", state: 'locked', type: 'lesson' },
-      { id: 206, name: 'Force Intuition', state: 'locked', type: 'intermediate' },
+      { id: 206, name: 'Friction & Normal Forces', state: 'locked', type: 'lesson' },
     ],
     bossState: 'locked',
   },
   {
-    id: 3, name: 'Work & Energy', x: 68, y: 30,
+    id: 3, name: 'Work & Energy', x: 74, y: 68,
     state: 'active', mastery: 60,
     concepts: '3/5', labs: '2/3', assessment: 82,
     unlocks: [4], prereqs: [1],
@@ -71,27 +119,28 @@ const UNITS = [
       { id: 302, name: 'Kinetic Energy', state: 'done', type: 'lesson' },
       { id: 303, name: 'Potential Energy', state: 'active', type: 'lesson' },
       { id: 304, name: 'Conservation of Energy', state: 'locked', type: 'lesson' },
-      { id: 305, name: 'Work-Energy Theorem', state: 'locked', type: 'lesson' },
+      { id: 305, name: 'Power', state: 'locked', type: 'lesson' },
     ],
     bossState: 'locked',
   },
   {
-    id: 4, name: 'Momentum', x: 58, y: 62,
+    id: 4, name: 'Momentum', x: 49, y: 81,
     state: 'locked', mastery: 0,
     concepts: '0/5', labs: '0/3', assessment: 0,
-    unlocks: [6], prereqs: [2, 3],
+    unlocks: [8], prereqs: [2, 3],
     description: 'The physics of collisions and conservation in isolated systems.',
-    unlockNote: "Requires: Newton's Laws + Work & Energy",
+    unlockNote: "Requires: Newton's Laws + Work & Energy · Unlocks: Rotation",
     subUnits: [
       { id: 401, name: 'What is Momentum?', state: 'locked', type: 'lesson' },
       { id: 402, name: 'Impulse', state: 'locked', type: 'lesson' },
-      { id: 403, name: 'Conservation Law', state: 'locked', type: 'lesson' },
+      { id: 403, name: 'Collisions', state: 'locked', type: 'lesson' },
       { id: 404, name: 'Elastic Collisions', state: 'locked', type: 'lesson' },
+      { id: 405, name: 'Center of Mass', state: 'locked', type: 'lesson' },
     ],
     bossState: 'locked',
   },
   {
-    id: 5, name: 'Universal Gravity', x: 76, y: 50,
+    id: 5, name: 'Universal Gravity', x: 22, y: 61,
     state: 'locked', mastery: 0,
     concepts: '0/5', labs: '0/3', assessment: 0,
     unlocks: [], prereqs: [2],
@@ -106,22 +155,39 @@ const UNITS = [
     bossState: 'locked',
   },
   {
-    id: 6, name: 'Oscillations', x: 35, y: 75,
+    id: 8, name: 'Rotation', x: 31, y: 22,
     state: 'locked', mastery: 0,
     concepts: '0/5', labs: '0/3', assessment: 0,
-    unlocks: [7], prereqs: [4],
-    description: 'Springs, pendulums, and the mathematics of repeating motion.',
-    unlockNote: 'Requires: Momentum',
+    unlocks: [6], prereqs: [4],
+    description: 'Angular motion, torque, and rotational inertia — the spinning side of mechanics.',
+    unlockNote: 'Requires: Momentum · Unlocks: Oscillations',
     subUnits: [
-      { id: 601, name: 'Simple Harmonic Motion', state: 'locked', type: 'lesson' },
-      { id: 602, name: 'Spring Forces', state: 'locked', type: 'lesson' },
-      { id: 603, name: 'Pendulums', state: 'locked', type: 'lesson' },
-      { id: 604, name: 'Resonance', state: 'locked', type: 'lesson' },
+      { id: 801, name: 'Angular Motion', state: 'locked', type: 'lesson' },
+      { id: 802, name: 'Torque', state: 'locked', type: 'lesson' },
+      { id: 803, name: 'Moment of Inertia', state: 'locked', type: 'lesson' },
+      { id: 804, name: 'Angular Momentum', state: 'locked', type: 'lesson' },
+      { id: 805, name: 'Rolling Motion', state: 'locked', type: 'lesson' },
     ],
     bossState: 'locked',
   },
   {
-    id: 7, name: 'E&M Fields', x: 72, y: 78,
+    id: 6, name: 'Oscillations', x: 74, y: 13,
+    state: 'locked', mastery: 0,
+    concepts: '0/5', labs: '0/3', assessment: 0,
+    unlocks: [7], prereqs: [8],
+    description: 'Springs, pendulums, and the mathematics of repeating motion.',
+    unlockNote: 'Requires: Rotation',
+    subUnits: [
+      { id: 601, name: 'Simple Harmonic Motion', state: 'locked', type: 'lesson' },
+      { id: 602, name: 'Spring Forces', state: 'locked', type: 'lesson' },
+      { id: 603, name: 'Pendulums', state: 'locked', type: 'lesson' },
+      { id: 604, name: 'Energy in SHM', state: 'locked', type: 'lesson' },
+      { id: 605, name: 'Damped Oscillations', state: 'locked', type: 'lesson' },
+    ],
+    bossState: 'locked',
+  },
+  {
+    id: 7, name: 'E&M Fields', x: 104, y: 53,
     state: 'locked', mastery: 0,
     concepts: '0/5', labs: '0/3', assessment: 0,
     unlocks: [], prereqs: [6],
@@ -138,7 +204,7 @@ const UNITS = [
 ]
 
 const UNIT_EDGES = [
-  [1, 2], [1, 3], [2, 4], [2, 5], [3, 4], [4, 6], [6, 7],
+  [1, 2], [1, 3], [2, 4], [2, 5], [3, 4], [4, 8], [8, 6], [6, 7],
 ]
 
 const stateColor = (state: string) => ({
@@ -216,9 +282,17 @@ export default function GalaxyPage() {
     ? getLessonVisualState(activeSubUnit.id, userStars, activeSubUnit.state)
     : null
 
-  // Calculate star positions for current zoomed unit
+  // Constellation layout for the current zoomed unit (undefined → hub-and-spoke fallback)
+  const constellation = zoomedUnit ? UNIT_CONSTELLATIONS[zoomedUnit] : undefined
+
+  // Calculate star positions: constellation lookup if available, else hub-and-spoke
   const subPositions = zoomedUnitData
-    ? getStarPositions(zoomedUnitData.subUnits.length)
+    ? constellation
+      ? zoomedUnitData.subUnits.map(sub => {
+          const star = constellation.stars.find(s => s.lessonId === sub.id)
+          return star ?? { x: 50, y: 50 }
+        })
+      : getStarPositions(zoomedUnitData.subUnits.length)
     : []
 
   // Check if all lessons in zoomed unit are done (enables boss)
@@ -392,16 +466,18 @@ export default function GalaxyPage() {
               {/* ── OUTER GALAXY ── */}
               {!zoomedUnit && (
                 <>
-                  {UNIT_EDGES.map(([aId, bId], i) => {
-                    const a = UNITS.find(u => u.id === aId)!
-                    const b = UNITS.find(u => u.id === bId)!
+                  {/* Spiral track — one bezier segment per consecutive unit pair */}
+                  {SPIRAL_ORDER.slice(0, -1).map((uid, i) => {
+                    const a = UNITS.find(u => u.id === uid)!
+                    const b = UNITS.find(u => u.id === SPIRAL_ORDER[i + 1])!
                     const isLit = a.state !== 'locked' && b.state !== 'locked'
                     return (
-                      <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-                        stroke={isLit ? '#00F0FF' : '#1A1D35'}
-                        strokeWidth={isLit ? 0.3 : 0.2}
-                        strokeOpacity={isLit ? 0.5 : 0.3}
-                        strokeDasharray={isLit ? 'none' : '1 1'}
+                      <path key={i} d={spiralSeg(i, i + 1)}
+                        fill="none"
+                        stroke={isLit ? '#00F0FF' : '#2A3060'}
+                        strokeWidth={isLit ? 0.45 : 0.25}
+                        strokeOpacity={isLit ? 0.65 : 0.2}
+                        strokeDasharray={isLit ? 'none' : '1.5 1.5'}
                       />
                     )
                   })}
@@ -421,8 +497,8 @@ export default function GalaxyPage() {
                           const target = UNITS.find(u => u.id === uid)
                           if (!target) return null
                           return (
-                            <line key={uid}
-                              x1={unit.x} y1={unit.y} x2={target.x} y2={target.y}
+                            <path key={uid} d={unlockArc(unit.x, unit.y, target.x, target.y)}
+                              fill="none"
                               stroke="#9B5DFF" strokeWidth="0.4"
                               strokeOpacity="0.7" strokeDasharray="0.8 0.8"
                             />
@@ -516,29 +592,51 @@ export default function GalaxyPage() {
                     )
                   })()}
 
-                  {/* Lines from center to each sub-unit */}
-                  {subPositions.slice(1).map((pos, i) => {
-                    const sub = zoomedUnitData.subUnits[i + 1]
-                    const { state: centerState } = getLessonVisualState(zoomedUnitData.subUnits[0].id, userStars, zoomedUnitData.subUnits[0].state)
-                    const { state: subState } = getLessonVisualState(sub.id, userStars, sub.state)
-                    const isLit = centerState !== 'locked' && subState !== 'locked'
-                    return (
-                      <line key={i}
-                        x1={50} y1={50}
-                        x2={pos.x} y2={pos.y}
-                        stroke={isLit ? typeColor(sub.type) : '#1A1D35'}
-                        strokeWidth={isLit ? 0.3 : 0.2}
-                        strokeOpacity={isLit ? 0.4 : 0.2}
-                        strokeDasharray={isLit ? 'none' : '1 1'}
-                      />
-                    )
-                  })}
+                  {/* Constellation edges — or hub-and-spoke if no constellation */}
+                  {constellation
+                    ? constellation.edges.map((edge, i) => {
+                        const fromSub = zoomedUnitData.subUnits.find(s => s.id === edge.from)
+                        const toSub = zoomedUnitData.subUnits.find(s => s.id === edge.to)
+                        if (!fromSub || !toSub) return null
+                        const fromPos = subPositions[zoomedUnitData.subUnits.indexOf(fromSub)]
+                        const toPos = subPositions[zoomedUnitData.subUnits.indexOf(toSub)]
+                        const { state: fromState } = getLessonVisualState(fromSub.id, userStars, fromSub.state)
+                        const { state: toState } = getLessonVisualState(toSub.id, userStars, toSub.state)
+                        const isLit = fromState !== 'locked' && toState !== 'locked'
+                        return (
+                          <line key={i}
+                            x1={fromPos.x} y1={fromPos.y}
+                            x2={toPos.x} y2={toPos.y}
+                            stroke={isLit ? typeColor(fromSub.type) : '#1A1D35'}
+                            strokeWidth={isLit ? 0.3 : 0.2}
+                            strokeOpacity={isLit ? 0.4 : 0.2}
+                            strokeDasharray={isLit ? 'none' : '1 1'}
+                          />
+                        )
+                      })
+                    : subPositions.slice(1).map((pos, i) => {
+                        const sub = zoomedUnitData.subUnits[i + 1]
+                        const { state: centerState } = getLessonVisualState(zoomedUnitData.subUnits[0].id, userStars, zoomedUnitData.subUnits[0].state)
+                        const { state: subState } = getLessonVisualState(sub.id, userStars, sub.state)
+                        const isLit = centerState !== 'locked' && subState !== 'locked'
+                        return (
+                          <line key={i}
+                            x1={50} y1={50}
+                            x2={pos.x} y2={pos.y}
+                            stroke={isLit ? typeColor(sub.type) : '#1A1D35'}
+                            strokeWidth={isLit ? 0.3 : 0.2}
+                            strokeOpacity={isLit ? 0.4 : 0.2}
+                            strokeDasharray={isLit ? 'none' : '1 1'}
+                          />
+                        )
+                      })
+                  }
 
                   {/* Sub-unit nodes */}
                   {zoomedUnitData.subUnits.map((sub, index) => {
                     const pos = subPositions[index]
                     const isSelected = selectedSubUnit === sub.id
-                    const isCenter = index === 0
+                    const isCenter = !constellation && index === 0
                     // Derive effective state from real Supabase stars + sequential unlock logic
                     const { state: effectiveState, stars: realStars } = getLessonVisualState(sub.id, userStars, sub.state)
                     const color = effectiveState === 'locked' ? '#2A2D40' : effectiveState === 'newly-unlocked' ? '#FF0044' : typeColor(sub.type)
