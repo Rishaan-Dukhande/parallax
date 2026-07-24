@@ -75,3 +75,18 @@ export async function saveQuizAttempt(userId: string, topic: string, score: numb
   if (error) { console.error('Error saving quiz attempt:', error); return null }
   return data
 }
+
+export async function getBeatenBosses(userId: string): Promise<number[]> {
+  const { data, error } = await supabase
+    .from('quiz_attempts')
+    .select('topic')
+    .eq('user_id', userId)
+    .like('topic', 'boss-unit-%')
+  if (error) { console.error('Error fetching beaten bosses:', error); return [] }
+  const ids = new Set<number>()
+  data.forEach(row => {
+    const match = row.topic.match(/^boss-unit-(\d+)$/)
+    if (match) ids.add(Number(match[1]))
+  })
+  return Array.from(ids)
+}

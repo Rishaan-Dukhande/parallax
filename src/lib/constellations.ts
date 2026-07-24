@@ -65,17 +65,17 @@ export const UNIT_CONSTELLATIONS: Record<number, ConstellationDef> = {
     shapeName: 'Triangle',
     meaning: 'Forces in balance',
     stars: [
-      { lessonId: 203, x: 50, y: 26 }, // Newton's 1st Law — apex
-      { lessonId: 204, x: 29, y: 67 }, // Newton's 2nd Law — bottom-left
-      { lessonId: 205, x: 71, y: 67 }, // Newton's 3rd Law — bottom-right
-      { lessonId: 206, x: 50, y: 50 }, // Friction & Normal Forces — center bridge
+      { lessonId: 201, x: 50, y: 26 }, // Newton's 1st Law — apex
+      { lessonId: 202, x: 29, y: 67 }, // Newton's 2nd Law — bottom-left
+      { lessonId: 203, x: 71, y: 67 }, // Newton's 3rd Law — bottom-right
+      { lessonId: 204, x: 50, y: 50 }, // Friction & Normal Forces — center bridge
     ],
     edges: [
-      { from: 203, to: 204 }, // apex → bottom-left
-      { from: 204, to: 205 }, // base
-      { from: 205, to: 203 }, // bottom-right → apex
-      { from: 206, to: 203 }, // friction ties into 1st law (inertia vs friction)
-      { from: 206, to: 204 }, // friction ties into 2nd law (F=ma with friction)
+      { from: 201, to: 202 }, // apex → bottom-left
+      { from: 202, to: 203 }, // base
+      { from: 203, to: 201 }, // bottom-right → apex
+      { from: 204, to: 201 }, // friction ties into 1st law (inertia vs friction)
+      { from: 204, to: 202 }, // friction ties into 2nd law (F=ma with friction)
     ],
   },
 

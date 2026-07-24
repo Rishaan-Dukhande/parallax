@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import { UNIT_CONSTELLATIONS } from '@/lib/constellations'
+import UnitArrivalCutscene from '@/components/galaxy/UnitArrivalCutscene'
 
 // ─────────────────────────────────────────────
 // SPIRAL MATH — outer galaxy layout
@@ -80,9 +81,9 @@ const UNITS = [
     id: 1, name: 'Kinematics', x: 55, y: 39,
     state: 'done', mastery: 94,
     concepts: '5/5', labs: '3/3', assessment: 96,
-    unlocks: [2, 3], prereqs: [],
+    unlocks: [2], prereqs: [],
     description: 'Motion, velocity, and acceleration — the language of moving objects.',
-    unlockNote: "Unlocks: Newton's Laws + Work & Energy",
+    unlockNote: "Unlocks: Newton's Laws",
     subUnits: [
       { id: 101, name: 'What is Motion?', state: 'done', type: 'lesson' },
       { id: 102, name: 'Velocity vs Speed', state: 'done', type: 'lesson' },
@@ -96,14 +97,14 @@ const UNITS = [
     id: 2, name: "Newton's Laws", x: 72, y: 45,
     state: 'done', mastery: 81,
     concepts: '5/5', labs: '2/3', assessment: 82,
-    unlocks: [4, 5], prereqs: [1],
+    unlocks: [3], prereqs: [1],
     description: 'Force, mass, and acceleration — the rules that govern every push and pull.',
-    unlockNote: 'Unlocks: Momentum + Universal Gravity',
+    unlockNote: "Requires: Kinematics · Unlocks: Work & Energy",
     subUnits: [
-      { id: 203, name: "Newton's 1st Law", state: 'done', type: 'lesson' },
-      { id: 204, name: "Newton's 2nd Law", state: 'active', type: 'lesson' },
-      { id: 205, name: "Newton's 3rd Law", state: 'locked', type: 'lesson' },
-      { id: 206, name: 'Friction & Normal Forces', state: 'locked', type: 'lesson' },
+      { id: 201, name: "Newton's 1st Law", state: 'done', type: 'lesson' },
+      { id: 202, name: "Newton's 2nd Law", state: 'active', type: 'lesson' },
+      { id: 203, name: "Newton's 3rd Law", state: 'locked', type: 'lesson' },
+      { id: 204, name: 'Friction & Normal Forces', state: 'locked', type: 'lesson' },
     ],
     bossState: 'locked',
   },
@@ -111,9 +112,9 @@ const UNITS = [
     id: 3, name: 'Work & Energy', x: 74, y: 68,
     state: 'active', mastery: 60,
     concepts: '3/5', labs: '2/3', assessment: 82,
-    unlocks: [4], prereqs: [1],
+    unlocks: [4], prereqs: [2],
     description: 'Explore kinetic energy, potential energy, and conservation principles.',
-    unlockNote: 'Unlocks: Momentum',
+    unlockNote: "Requires: Newton's Laws · Unlocks: Momentum",
     subUnits: [
       { id: 301, name: 'What is Work?', state: 'done', type: 'lesson' },
       { id: 302, name: 'Kinetic Energy', state: 'done', type: 'lesson' },
@@ -127,9 +128,9 @@ const UNITS = [
     id: 4, name: 'Momentum', x: 49, y: 81,
     state: 'locked', mastery: 0,
     concepts: '0/5', labs: '0/3', assessment: 0,
-    unlocks: [8], prereqs: [2, 3],
+    unlocks: [5], prereqs: [3],
     description: 'The physics of collisions and conservation in isolated systems.',
-    unlockNote: "Requires: Newton's Laws + Work & Energy · Unlocks: Rotation",
+    unlockNote: "Requires: Work & Energy · Unlocks: Universal Gravity",
     subUnits: [
       { id: 401, name: 'What is Momentum?', state: 'locked', type: 'lesson' },
       { id: 402, name: 'Impulse', state: 'locked', type: 'lesson' },
@@ -143,9 +144,9 @@ const UNITS = [
     id: 5, name: 'Universal Gravity', x: 22, y: 61,
     state: 'locked', mastery: 0,
     concepts: '0/5', labs: '0/3', assessment: 0,
-    unlocks: [], prereqs: [2],
+    unlocks: [8], prereqs: [4],
     description: 'Orbital mechanics and gravitational fields across the cosmos.',
-    unlockNote: "Requires: Newton's Laws",
+    unlockNote: "Requires: Momentum · Unlocks: Rotation",
     subUnits: [
       { id: 501, name: "Newton's Law of Gravity", state: 'locked', type: 'lesson' },
       { id: 502, name: 'Gravitational Fields', state: 'locked', type: 'lesson' },
@@ -158,9 +159,9 @@ const UNITS = [
     id: 8, name: 'Rotation', x: 31, y: 22,
     state: 'locked', mastery: 0,
     concepts: '0/5', labs: '0/3', assessment: 0,
-    unlocks: [6], prereqs: [4],
+    unlocks: [6], prereqs: [5],
     description: 'Angular motion, torque, and rotational inertia — the spinning side of mechanics.',
-    unlockNote: 'Requires: Momentum · Unlocks: Oscillations',
+    unlockNote: 'Requires: Universal Gravity · Unlocks: Oscillations',
     subUnits: [
       { id: 801, name: 'Angular Motion', state: 'locked', type: 'lesson' },
       { id: 802, name: 'Torque', state: 'locked', type: 'lesson' },
@@ -176,7 +177,7 @@ const UNITS = [
     concepts: '0/5', labs: '0/3', assessment: 0,
     unlocks: [7], prereqs: [8],
     description: 'Springs, pendulums, and the mathematics of repeating motion.',
-    unlockNote: 'Requires: Rotation',
+    unlockNote: 'Requires: Rotation · Unlocks: E&M Fields',
     subUnits: [
       { id: 601, name: 'Simple Harmonic Motion', state: 'locked', type: 'lesson' },
       { id: 602, name: 'Spring Forces', state: 'locked', type: 'lesson' },
@@ -192,7 +193,7 @@ const UNITS = [
     concepts: '0/5', labs: '0/3', assessment: 0,
     unlocks: [], prereqs: [6],
     description: 'Electric fields, magnetic forces, and electromagnetism.',
-    unlockNote: 'Requires: Oscillations',
+    unlockNote: 'Requires: Oscillations · Final Unit',
     subUnits: [
       { id: 701, name: "Coulomb's Law", state: 'locked', type: 'lesson' },
       { id: 702, name: 'Electric Fields', state: 'locked', type: 'lesson' },
@@ -204,7 +205,7 @@ const UNITS = [
 ]
 
 const UNIT_EDGES = [
-  [1, 2], [1, 3], [2, 4], [2, 5], [3, 4], [4, 8], [8, 6], [6, 7],
+  [1, 2], [2, 3], [3, 4], [4, 5], [5, 8], [8, 6], [6, 7],
 ]
 
 // prereqs[uid] = list of unit IDs that must be done before uid unlocks
@@ -234,6 +235,17 @@ async function fetchUserStars(): Promise<Record<number, number>> {
     return await res.json()
   } catch {
     return {}
+  }
+}
+
+async function fetchBeatenBosses(): Promise<Set<number>> {
+  try {
+    const res = await fetch('/api/progress/bosses')
+    if (!res.ok) return new Set()
+    const ids: number[] = await res.json()
+    return new Set(ids)
+  } catch {
+    return new Set()
   }
 }
 
@@ -271,10 +283,15 @@ export default function GalaxyPage() {
   const [isZooming, setIsZooming] = useState(false)
   const [showBossAnimation, setShowBossAnimation] = useState(false)
   const [userStars, setUserStars] = useState<Record<number, number>>({})
+  const [beatenBosses, setBeatenBosses] = useState<Set<number>>(new Set())
   const [starsLoaded, setStarsLoaded] = useState(false)
+  const [bossesLoaded, setBossesLoaded] = useState(false)
   const [newlyUnlockedUnits, setNewlyUnlockedUnits] = useState<Set<number>>(new Set())
   const [pulsingSegs, setPulsingSegs] = useState<Set<number>>(new Set())
+  const [arrivalUnit, setArrivalUnit] = useState<{ id: number, name: string } | null>(null)
   const userStarsRef = useRef<Record<number, number>>({})
+  const beatenBossesRef = useRef<Set<number>>(new Set())
+  const shownCutscenes = useRef(new Set<number>())
 
   // Pan state for scrollable canvas
   const [pan, setPan] = useState({ x: -10, y: -10 })
@@ -283,6 +300,7 @@ export default function GalaxyPage() {
 
   const searchParams = useSearchParams()
   const unlockedParam = searchParams.get('unlocked')
+  const enterParam = searchParams.get('enter')
 
   useEffect(() => {
     fetchUserStars().then(stars => {
@@ -290,11 +308,20 @@ export default function GalaxyPage() {
       userStarsRef.current = stars
       setStarsLoaded(true)
     })
+    fetchBeatenBosses().then(bosses => {
+      setBeatenBosses(bosses)
+      beatenBossesRef.current = bosses
+      setBossesLoaded(true)
+    })
 
     const handleUpdate = () => {
       fetchUserStars().then(stars => {
         setUserStars(stars)
         userStarsRef.current = stars
+      })
+      fetchBeatenBosses().then(bosses => {
+        setBeatenBosses(bosses)
+        beatenBossesRef.current = bosses
       })
     }
     window.addEventListener('progress-updated', handleUpdate)
@@ -302,7 +329,7 @@ export default function GalaxyPage() {
   }, [])
 
   useEffect(() => {
-    if (!unlockedParam || !starsLoaded) return
+    if (!unlockedParam || !starsLoaded || !bossesLoaded) return
     const beatenId = parseInt(unlockedParam)
     if (isNaN(beatenId)) return
 
@@ -312,14 +339,15 @@ export default function GalaxyPage() {
     // Pan to beaten unit
     setPan({ x: beatenUnit.x - 60, y: beatenUnit.y - 60 })
 
-    // Compute done map from real star data
+    // Compute done map from real star data + boss completion
     const stars = userStarsRef.current
+    const bosses = beatenBossesRef.current
     const done: Record<number, boolean> = {}
     for (const unit of UNITS) {
       done[unit.id] = unit.subUnits.every(s => {
         const { state } = getLessonVisualState(s.id, stars, s.state)
         return state === 'done'
-      })
+      }) && bosses.has(unit.id)
     }
 
     // Units that just became available because beaten unit is done
@@ -345,7 +373,24 @@ export default function GalaxyPage() {
     }, 4000)
 
     return () => clearTimeout(timer)
-  }, [unlockedParam, starsLoaded])
+  }, [unlockedParam, starsLoaded, bossesLoaded])
+
+  // Auto-enter a unit's zoomed view when ?enter=X is present (from lesson completion)
+  useEffect(() => {
+    if (!enterParam) return
+    const enterId = parseInt(enterParam)
+    if (isNaN(enterId)) return
+    setIsZooming(true)
+    setTimeout(() => {
+      setZoomedUnit(enterId)
+      setSelectedUnit(null)
+      setSelectedSubUnit(null)
+      setIsZooming(false)
+      setPan({ x: -10, y: -10 })
+    }, 1200)
+    router.replace('/galaxy')
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const activeUnit = UNITS.find(u => u.id === selectedUnit)
   const zoomedUnitData = UNITS.find(u => u.id === zoomedUnit)
@@ -354,13 +399,13 @@ export default function GalaxyPage() {
     ? getLessonVisualState(activeSubUnit.id, userStars, activeSubUnit.state)
     : null
 
-  // Derive unit-level done/active/locked from real lesson stars
+  // Derive unit-level done/active/locked from real lesson stars + boss completion
   const unitDone: Record<number, boolean> = {}
   for (const unit of UNITS) {
     unitDone[unit.id] = unit.subUnits.every(s => {
       const { state } = getLessonVisualState(s.id, userStars, s.state)
       return state === 'done'
-    })
+    }) && beatenBosses.has(unit.id)
   }
   const getUnitDynState = (uid: number): 'done' | 'active' | 'locked' => {
     if (unitDone[uid]) return 'done'
@@ -393,10 +438,16 @@ export default function GalaxyPage() {
   // Boss ring radius — wraps the entire constellation
   const BOSS_RING_RADIUS = 38
 
-  const handleEnterUnit = (unitId: number) => {
+  const handleEnterUnit = (unit: (typeof UNITS)[number]) => {
+    const everVisited = unit.subUnits.some(s => (userStars[s.id] || 0) > 0)
+    if (!everVisited && !shownCutscenes.current.has(unit.id) && getUnitDynState(unit.id) !== 'locked') {
+      shownCutscenes.current.add(unit.id)
+      setArrivalUnit({ id: unit.id, name: unit.name })
+      return
+    }
     setIsZooming(true)
     setTimeout(() => {
-      setZoomedUnit(unitId)
+      setZoomedUnit(unit.id)
       setSelectedUnit(null)
       setSelectedSubUnit(null)
       setIsZooming(false)
@@ -914,7 +965,7 @@ export default function GalaxyPage() {
                 <div style={{ background: 'var(--cyan-dim)', border: '1px solid var(--cyan)', borderRadius: 4, padding: '10px 14px', marginBottom: 16, fontSize: 11, color: 'var(--cyan)', fontFamily: 'JetBrains Mono, monospace' }}>
                   ⚡ {activeUnit.unlockNote}
                 </div>
-                <button onClick={() => handleEnterUnit(activeUnit.id)} style={{
+                <button onClick={() => handleEnterUnit(activeUnit)} style={{
                   width: '100%', padding: '14px',
                   background: activeUnitDynState === 'locked' ? 'var(--border)' : 'var(--cyan)',
                   border: 'none', borderRadius: 4,
@@ -1021,6 +1072,17 @@ export default function GalaxyPage() {
           40% { stroke-opacity: 1; }
         }
       `}</style>
+
+      {arrivalUnit && (
+        <UnitArrivalCutscene
+          unitName={arrivalUnit.name}
+          onComplete={() => {
+            const unitId = arrivalUnit.id
+            setArrivalUnit(null)
+            handleEnterUnit(UNITS.find(u => u.id === unitId)!)
+          }}
+        />
+      )}
     </div>
   )
 }

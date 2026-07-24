@@ -1420,15 +1420,19 @@ function AIReviewPopup({
 // ─────────────────────────────────────────────
 // COMPLETION SCREEN
 // ─────────────────────────────────────────────
+const UNIT_LESSON_COUNTS: Record<string, number> = { '1': 5, '2': 4, '3': 5, '4': 5, '5': 4, '6': 5, '7': 4, '8': 5 }
+
 function CompletionScreen({ stars, xp, coins, lessonName, unitId, lessonId, onRetry, onReviewWithAI }: {
   stars: number; xp: number; coins: number; lessonName: string; unitId: string; lessonId: string; onRetry: () => void; onReviewWithAI: () => void
 }) {
   const router = useRouter()
 
+  const lessonNum = Number(lessonId) % 100
+  const isLastLesson = lessonNum === (UNIT_LESSON_COUNTS[unitId] || 0)
+
   const getNextLessonId = () => {
     const current = Number(lessonId)
     const unitBase = Math.floor(current / 100) * 100
-    const lessonNum = current % 100
     return unitBase + lessonNum + 1
   }
 
@@ -1473,7 +1477,7 @@ function CompletionScreen({ stars, xp, coins, lessonName, unitId, lessonId, onRe
       )}
 
       <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-        <button onClick={() => router.push('/galaxy')}
+        <button onClick={() => router.push(isLastLesson ? `/galaxy?enter=${unitId}` : '/galaxy')}
           style={{ padding: '14px 24px', background: 'var(--bg-surface-hi)', border: '1px solid var(--border)', borderRadius: 4, color: 'var(--text-primary)', fontSize: 13, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer' }}>
           ← GALAXY
         </button>
@@ -1490,10 +1494,15 @@ function CompletionScreen({ stars, xp, coins, lessonName, unitId, lessonId, onRe
           </>
         )}
         {stars >= 2 && (
-          <button onClick={() => router.push(`/learn/${unitId}/${nextLessonId}`)}
-            style={{ padding: '14px 28px', background: stars === 3 ? 'linear-gradient(135deg, var(--cyan), var(--purple))' : 'var(--cyan)', border: 'none', borderRadius: 4, color: 'var(--bg-base)', fontSize: 13, fontWeight: 900, fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer', boxShadow: '0 0 20px var(--cyan-glow)' }}>
-            {stars === 3 ? '🌟 NEXT LESSON →' : 'NEXT LESSON →'}
-          </button>
+          isLastLesson
+            ? <button onClick={() => router.push(`/boss/${unitId}`)}
+                style={{ padding: '14px 28px', background: 'linear-gradient(135deg, #FF0044, var(--purple))', border: 'none', borderRadius: 4, color: 'white', fontSize: 13, fontWeight: 900, fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer', boxShadow: '0 0 20px #FF004466' }}>
+                ⚔️ GO TO BOSS →
+              </button>
+            : <button onClick={() => router.push(`/learn/${unitId}/${nextLessonId}`)}
+                style={{ padding: '14px 28px', background: stars === 3 ? 'linear-gradient(135deg, var(--cyan), var(--purple))' : 'var(--cyan)', border: 'none', borderRadius: 4, color: 'var(--bg-base)', fontSize: 13, fontWeight: 900, fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer', boxShadow: '0 0 20px var(--cyan-glow)' }}>
+                {stars === 3 ? '🌟 NEXT LESSON →' : 'NEXT LESSON →'}
+              </button>
         )}
       </div>
     </div>
