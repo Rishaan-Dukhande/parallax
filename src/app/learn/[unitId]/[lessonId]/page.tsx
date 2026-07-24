@@ -1555,7 +1555,19 @@ export default function LearnPage() {
   }
 
   useEffect(() => {
-    fetchLesson(attemptNumber, missedConcepts, learningStyle)
+    setAttemptNumber(1)
+    setMissedConcepts([])
+    setFinalStars(0)
+    setFinalXP(0)
+    setFinalCoins(0)
+    setShowReview(false)
+    setAiDrawerOpen(false)
+    setAiCardSubmitted(false)
+    setLiveQuestionContent('')
+    setLiveQuestionTitle('')
+    setUserAnswer('')
+    setWasCorrect(undefined)
+    fetchLesson(1, [], learningStyle)
   }, [lessonId])
 
   const handleNextCard = () => {

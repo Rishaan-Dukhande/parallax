@@ -774,6 +774,7 @@ export default function BossBattlePage() {
             <div style={{ display: 'flex', gap: 12 }}>
               <button onClick={() => router.push('/galaxy')} style={{ flex: 1, padding: '14px', background: 'var(--bg-surface-hi)', border: '1px solid var(--border)', borderRadius: 4, color: 'var(--text-primary)', fontSize: 13, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer' }}>← GALAXY</button>
               <button onClick={() => router.push(`/boss/${unitId}`)} style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, #FF0044, var(--purple))', border: 'none', borderRadius: 4, color: 'white', fontSize: 13, fontWeight: 900, fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer' }}>⚡ FIGHT AGAIN</button>
+              <button onClick={() => router.push(`/galaxy?unlocked=${unitId}`)} style={{ flex: 1, padding: '14px', background: 'linear-gradient(135deg, var(--cyan), var(--purple))', border: 'none', borderRadius: 4, color: 'var(--bg-base)', fontSize: 13, fontWeight: 900, fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer' }}>NEXT UNIT →</button>
             </div>
           </div>
         </main>

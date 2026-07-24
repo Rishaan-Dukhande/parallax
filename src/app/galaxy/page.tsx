@@ -1,6 +1,6 @@
 'use client'
 import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import { UNIT_CONSTELLATIONS } from '@/lib/constellations'
@@ -207,6 +207,18 @@ const UNIT_EDGES = [
   [1, 2], [1, 3], [2, 4], [2, 5], [3, 4], [4, 8], [8, 6], [6, 7],
 ]
 
+// prereqs[uid] = list of unit IDs that must be done before uid unlocks
+const UNIT_PREREQS: Record<number, number[]> = (() => {
+  const p: Record<number, number[]> = {}
+  for (const unit of UNITS) p[unit.id] = []
+  for (const edge of UNIT_EDGES) {
+    const parent = edge[0], child = edge[1]
+    if (!p[child]) p[child] = []
+    p[child].push(parent)
+  }
+  return p
+})()
+
 const stateColor = (state: string) => ({
   done: '#00F0FF', active: '#00FF88', locked: '#2A2D40',
 }[state] || '#2A2D40')
@@ -259,21 +271,81 @@ export default function GalaxyPage() {
   const [isZooming, setIsZooming] = useState(false)
   const [showBossAnimation, setShowBossAnimation] = useState(false)
   const [userStars, setUserStars] = useState<Record<number, number>>({})
-
-  useEffect(() => {
-    fetchUserStars().then(stars => setUserStars(stars))
-
-    const handleUpdate = () => {
-      fetchUserStars().then(stars => setUserStars(stars))
-    }
-    window.addEventListener('progress-updated', handleUpdate)
-    return () => window.removeEventListener('progress-updated', handleUpdate)
-  }, [])
+  const [starsLoaded, setStarsLoaded] = useState(false)
+  const [newlyUnlockedUnits, setNewlyUnlockedUnits] = useState<Set<number>>(new Set())
+  const [pulsingSegs, setPulsingSegs] = useState<Set<number>>(new Set())
+  const userStarsRef = useRef<Record<number, number>>({})
 
   // Pan state for scrollable canvas
   const [pan, setPan] = useState({ x: -10, y: -10 })
   const [isDragging, setIsDragging] = useState(false)
   const dragStart = useRef({ x: 0, y: 0, panX: 0, panY: 0 })
+
+  const searchParams = useSearchParams()
+  const unlockedParam = searchParams.get('unlocked')
+
+  useEffect(() => {
+    fetchUserStars().then(stars => {
+      setUserStars(stars)
+      userStarsRef.current = stars
+      setStarsLoaded(true)
+    })
+
+    const handleUpdate = () => {
+      fetchUserStars().then(stars => {
+        setUserStars(stars)
+        userStarsRef.current = stars
+      })
+    }
+    window.addEventListener('progress-updated', handleUpdate)
+    return () => window.removeEventListener('progress-updated', handleUpdate)
+  }, [])
+
+  useEffect(() => {
+    if (!unlockedParam || !starsLoaded) return
+    const beatenId = parseInt(unlockedParam)
+    if (isNaN(beatenId)) return
+
+    const beatenUnit = UNITS.find(u => u.id === beatenId)
+    if (!beatenUnit) return
+
+    // Pan to beaten unit
+    setPan({ x: beatenUnit.x - 60, y: beatenUnit.y - 60 })
+
+    // Compute done map from real star data
+    const stars = userStarsRef.current
+    const done: Record<number, boolean> = {}
+    for (const unit of UNITS) {
+      done[unit.id] = unit.subUnits.every(s => {
+        const { state } = getLessonVisualState(s.id, stars, s.state)
+        return state === 'done'
+      })
+    }
+
+    // Units that just became available because beaten unit is done
+    const newly = new Set<number>()
+    for (const unit of UNITS) {
+      if (done[unit.id]) continue
+      const prereqs = UNIT_PREREQS[unit.id] || []
+      if (prereqs.length > 0 && prereqs.every(p => done[p])) newly.add(unit.id)
+    }
+    setNewlyUnlockedUnits(newly)
+
+    // Pulse spiral segments adjacent to beaten unit
+    const beatenIdx = SPIRAL_ORDER.indexOf(beatenId)
+    const pulsing = new Set<number>()
+    if (beatenIdx > 0) pulsing.add(beatenIdx - 1)
+    if (beatenIdx >= 0 && beatenIdx < SPIRAL_ORDER.length - 1) pulsing.add(beatenIdx)
+    setPulsingSegs(pulsing)
+
+    const timer = setTimeout(() => {
+      setNewlyUnlockedUnits(new Set())
+      setPulsingSegs(new Set())
+      router.replace('/galaxy')
+    }, 4000)
+
+    return () => clearTimeout(timer)
+  }, [unlockedParam, starsLoaded])
 
   const activeUnit = UNITS.find(u => u.id === selectedUnit)
   const zoomedUnitData = UNITS.find(u => u.id === zoomedUnit)
@@ -281,6 +353,21 @@ export default function GalaxyPage() {
   const activeSubUnitVisual = activeSubUnit
     ? getLessonVisualState(activeSubUnit.id, userStars, activeSubUnit.state)
     : null
+
+  // Derive unit-level done/active/locked from real lesson stars
+  const unitDone: Record<number, boolean> = {}
+  for (const unit of UNITS) {
+    unitDone[unit.id] = unit.subUnits.every(s => {
+      const { state } = getLessonVisualState(s.id, userStars, s.state)
+      return state === 'done'
+    })
+  }
+  const getUnitDynState = (uid: number): 'done' | 'active' | 'locked' => {
+    if (unitDone[uid]) return 'done'
+    if ((UNIT_PREREQS[uid] || []).every(p => unitDone[p])) return 'active'
+    return 'locked'
+  }
+  const activeUnitDynState = activeUnit ? getUnitDynState(activeUnit.id) : 'locked'
 
   // Constellation layout for the current zoomed unit (undefined → hub-and-spoke fallback)
   const constellation = zoomedUnit ? UNIT_CONSTELLATIONS[zoomedUnit] : undefined
@@ -468,29 +555,31 @@ export default function GalaxyPage() {
                 <>
                   {/* Spiral track — one bezier segment per consecutive unit pair */}
                   {SPIRAL_ORDER.slice(0, -1).map((uid, i) => {
-                    const a = UNITS.find(u => u.id === uid)!
-                    const b = UNITS.find(u => u.id === SPIRAL_ORDER[i + 1])!
-                    const isLit = a.state !== 'locked' && b.state !== 'locked'
+                    const isPulsing = pulsingSegs.has(i)
+                    const isLit = getUnitDynState(uid) !== 'locked' && getUnitDynState(SPIRAL_ORDER[i + 1]) !== 'locked'
                     return (
                       <path key={i} d={spiralSeg(i, i + 1)}
                         fill="none"
-                        stroke={isLit ? '#00F0FF' : '#2A3060'}
-                        strokeWidth={isLit ? 0.45 : 0.25}
-                        strokeOpacity={isLit ? 0.65 : 0.2}
-                        strokeDasharray={isLit ? 'none' : '1.5 1.5'}
+                        stroke={isLit || isPulsing ? '#00F0FF' : '#2A3060'}
+                        strokeWidth={isPulsing ? 0.9 : isLit ? 0.45 : 0.25}
+                        strokeOpacity={isPulsing ? 1 : isLit ? 0.65 : 0.2}
+                        strokeDasharray={isLit || isPulsing ? 'none' : '1.5 1.5'}
+                        style={isPulsing ? { animation: 'spiral-pulse 1.2s ease-in-out 3' } : {}}
                       />
                     )
                   })}
 
                   {UNITS.map(unit => {
+                    const dynState = getUnitDynState(unit.id)
+                    const isNewlyUnlocked = newlyUnlockedUnits.has(unit.id)
                     const isSelected = selectedUnit === unit.id
-                    const color = stateColor(unit.state)
+                    const color = isNewlyUnlocked ? '#00FF88' : stateColor(dynState)
                     return (
                       <g key={unit.id}
-                        style={{ cursor: unit.state === 'locked' ? 'default' : 'pointer' }}
+                        style={{ cursor: dynState === 'locked' ? 'default' : 'pointer' }}
                         onClick={(e) => {
                           e.stopPropagation()
-                          if (unit.state !== 'locked') setSelectedUnit(unit.id === selectedUnit ? null : unit.id)
+                          if (dynState !== 'locked') setSelectedUnit(unit.id === selectedUnit ? null : unit.id)
                         }}
                       >
                         {isSelected && unit.unlocks.map(uid => {
@@ -504,31 +593,31 @@ export default function GalaxyPage() {
                             />
                           )
                         })}
-                        {(isSelected || unit.state === 'active') && (
+                        {(isSelected || dynState === 'active' || isNewlyUnlocked) && (
                           <circle cx={unit.x} cy={unit.y} r={isSelected ? 8 : 7}
                             fill="none" stroke={color} strokeWidth="0.5" strokeOpacity="0.3"
-                            style={{ animation: 'pulse-glow 2s ease-in-out infinite' }}
+                            style={{ animation: isNewlyUnlocked ? 'unlock-glow 1s ease-in-out 4' : 'pulse-glow 2s ease-in-out infinite' }}
                           />
                         )}
                         <circle cx={unit.x} cy={unit.y} r={5.5}
-                          fill={unit.state === 'locked' ? '#0F1120' : `${color}22`}
+                          fill={dynState === 'locked' ? '#0F1120' : `${color}22`}
                           stroke={color} strokeWidth={isSelected ? 1 : 0.5}
-                          filter={unit.state !== 'locked' ? 'url(#glow-cyan)' : undefined}
+                          filter={dynState !== 'locked' ? 'url(#glow-cyan)' : undefined}
                         />
                         <text x={unit.x} y={unit.y + 1}
                           textAnchor="middle" dominantBaseline="middle"
                           fontSize="3.5" fill={color} fontWeight="bold"
                         >
-                          {unit.state === 'done' ? '✓' : unit.state === 'active' ? '⚡' : '🔒'}
+                          {dynState === 'done' ? '✓' : isNewlyUnlocked ? '🔓' : dynState === 'active' ? '⚡' : '🔒'}
                         </text>
                         <text x={unit.x} y={unit.y + 9}
                           textAnchor="middle" fontSize="2.8"
-                          fill={unit.state === 'locked' ? '#3D4266' : '#E8EEFF'}
+                          fill={dynState === 'locked' ? '#3D4266' : '#E8EEFF'}
                           fontFamily="JetBrains Mono, monospace"
                         >
                           {unit.name}
                         </text>
-                        {unit.state !== 'locked' && unit.unlocks.length > 0 && (
+                        {dynState !== 'locked' && unit.unlocks.length > 0 && (
                           <g>
                             <rect x={unit.x + 4} y={unit.y - 9}
                               width={unit.unlocks.length > 1 ? 8 : 6} height={3.5} rx="1.5"
@@ -778,7 +867,7 @@ export default function GalaxyPage() {
                       <svg viewBox="0 0 80 80" width="80" height="80">
                         <circle cx="40" cy="40" r="32" fill="none" stroke="var(--border)" strokeWidth="6" />
                         <circle cx="40" cy="40" r="32" fill="none"
-                          stroke={stateColor(activeUnit.state)} strokeWidth="6" strokeLinecap="round"
+                          stroke={stateColor(activeUnitDynState)} strokeWidth="6" strokeLinecap="round"
                           strokeDasharray={`${2 * Math.PI * 32}`}
                           strokeDashoffset={`${2 * Math.PI * 32 * (1 - activeUnit.mastery / 100)}`}
                           transform="rotate(-90 40 40)"
@@ -827,15 +916,15 @@ export default function GalaxyPage() {
                 </div>
                 <button onClick={() => handleEnterUnit(activeUnit.id)} style={{
                   width: '100%', padding: '14px',
-                  background: activeUnit.state === 'locked' ? 'var(--border)' : 'var(--cyan)',
+                  background: activeUnitDynState === 'locked' ? 'var(--border)' : 'var(--cyan)',
                   border: 'none', borderRadius: 4,
-                  color: activeUnit.state === 'locked' ? 'var(--text-muted)' : 'var(--bg-base)',
+                  color: activeUnitDynState === 'locked' ? 'var(--text-muted)' : 'var(--bg-base)',
                   fontSize: 14, fontWeight: 900, letterSpacing: 2,
                   fontFamily: 'JetBrains Mono, monospace',
-                  cursor: activeUnit.state === 'locked' ? 'not-allowed' : 'pointer',
-                  boxShadow: activeUnit.state !== 'locked' ? '0 0 20px var(--cyan-glow)' : 'none',
+                  cursor: activeUnitDynState === 'locked' ? 'not-allowed' : 'pointer',
+                  boxShadow: activeUnitDynState !== 'locked' ? '0 0 20px var(--cyan-glow)' : 'none',
                 }}>
-                  {activeUnit.state === 'locked' ? '🔒 LOCKED' : 'ENTER UNIT →'}
+                  {activeUnitDynState === 'locked' ? '🔒 LOCKED' : 'ENTER UNIT →'}
                 </button>
               </div>
             )}
@@ -922,6 +1011,14 @@ export default function GalaxyPage() {
           0% { transform: scale(0) rotate(-180deg); opacity: 0; }
           60% { transform: scale(1.2) rotate(10deg); opacity: 1; }
           100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes spiral-pulse {
+          0%, 100% { stroke-opacity: 0.2; }
+          50% { stroke-opacity: 1; }
+        }
+        @keyframes unlock-glow {
+          0%, 100% { stroke-opacity: 0.3; }
+          40% { stroke-opacity: 1; }
         }
       `}</style>
     </div>
