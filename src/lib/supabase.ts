@@ -76,6 +76,18 @@ export async function saveQuizAttempt(userId: string, topic: string, score: numb
   return data
 }
 
+export async function getOrCreateUserProgress(userId: string) {
+  const existing = await getUserProgress(userId)
+  if (existing) return existing
+  const { data, error } = await supabase
+    .from('user_progress')
+    .insert({ user_id: userId, xp: 0, coins: 0, mastery_score: 0, level: 1, streak_days: 0 })
+    .select()
+    .single()
+  if (error) { console.error('Error creating user progress:', error); return null }
+  return data
+}
+
 export async function getBeatenBosses(userId: string): Promise<number[]> {
   const { data, error } = await supabase
     .from('quiz_attempts')

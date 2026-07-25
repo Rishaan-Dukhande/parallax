@@ -1,16 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import {
-  getUserProgress,
+  getOrCreateUserProgress,
   addXPAndCoins,
   saveLessonAttempt,
   saveQuizAttempt,
 } from '@/lib/supabase'
-
-const DEFAULT_USER_ID = 'sandeep-default'
+import { getCurrentUserId } from '@/lib/auth'
 
 export async function GET() {
   try {
-    const progress = await getUserProgress(DEFAULT_USER_ID)
+    const userId = await getCurrentUserId()
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const progress = await getOrCreateUserProgress(userId)
     if (!progress) {
       console.error('User not found in database')
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
@@ -24,6 +25,8 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const userId = await getCurrentUserId()
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     const body = await request.json()
     const { type, ...data } = body
 
@@ -32,7 +35,7 @@ export async function POST(request: NextRequest) {
     if (type === 'lesson') {
       console.log('Saving lesson attempt...')
       const lessonResult = await saveLessonAttempt(
-        DEFAULT_USER_ID,
+        userId,
         data.unitId,
         data.lessonId,
         data.stars,
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
       console.log('Lesson attempt saved:', lessonResult)
 
       const updated = await addXPAndCoins(
-        DEFAULT_USER_ID,
+        userId,
         data.xpEarned,
         data.coinsEarned,
         data.newMastery
@@ -56,7 +59,7 @@ export async function POST(request: NextRequest) {
     if (type === 'quiz') {
       console.log('Saving quiz attempt...')
       await saveQuizAttempt(
-        DEFAULT_USER_ID,
+        userId,
         data.topic,
         data.score,
         data.totalQuestions,
@@ -65,7 +68,7 @@ export async function POST(request: NextRequest) {
       )
 
       const updated = await addXPAndCoins(
-        DEFAULT_USER_ID,
+        userId,
         data.xpEarned,
         0,
         data.newMastery

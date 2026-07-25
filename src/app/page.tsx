@@ -1,8 +1,25 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 export default function LandingPage() {
   const router = useRouter()
+
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [checkingAuth, setCheckingAuth] = useState(true)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null)
+      setCheckingAuth(false)
+    })
+  }, [])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    setUserEmail(null)
+  }
 
   return (
     <div style={{
@@ -15,6 +32,25 @@ export default function LandingPage() {
       position: 'relative',
       overflow: 'hidden',
     }}>
+      <div style={{ position: 'absolute', top: 24, right: 24, zIndex: 2, fontFamily: 'JetBrains Mono, monospace', fontSize: 13 }}>
+        {!checkingAuth && (
+          userEmail ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <span style={{ color: 'rgba(232,238,255,0.6)' }}>{userEmail}</span>
+              <button onClick={handleSignOut}
+                style={{ padding: '8px 16px', background: 'transparent', border: '1px solid #23263D', borderRadius: 4, color: '#E8EEFF', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12 }}>
+                SIGN OUT
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => router.push('/login')}
+              style={{ padding: '10px 20px', background: 'transparent', border: '1px solid #00F0FF', borderRadius: 4, color: '#00F0FF', cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, fontWeight: 700 }}>
+              SIGN IN
+            </button>
+          )
+        )}
+      </div>
+
       {/* Star field */}
       {Array.from({ length: 60 }, (_, i) => (
         <div key={i} style={{

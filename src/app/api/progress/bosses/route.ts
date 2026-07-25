@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 import { getBeatenBosses } from '@/lib/supabase'
-
-const DEFAULT_USER_ID = 'sandeep-default'
+import { getCurrentUserId } from '@/lib/auth'
 
 export async function GET() {
   try {
-    const bosses = await getBeatenBosses(DEFAULT_USER_ID)
+    const userId = await getCurrentUserId()
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const bosses = await getBeatenBosses(userId)
     return NextResponse.json(bosses)
   } catch (err) {
     console.error('Error fetching beaten bosses:', err)

@@ -1,12 +1,29 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
+import { createClient } from '@/lib/supabase/client'
 
 export default function SettingsPage() {
+  const router = useRouter()
   const [learningStyle, setLearningStyle] = useState<'intuitive' | 'visual' | 'mathematical'>('intuitive')
   const [notifications, setNotifications] = useState(true)
   const [saved, setSaved] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.auth.getUser().then(({ data }) => {
+      setUserEmail(data.user?.email ?? null)
+    })
+  }, [])
+
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   const handleSave = () => {
     setSaved(true)
@@ -63,7 +80,7 @@ export default function SettingsPage() {
               <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: 1, fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>ACCOUNT</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
-                  { label: 'User ID', value: 'sandeep-default' },
+                  { label: 'Email', value: userEmail ?? '—' },
                   { label: 'Plan', value: 'Parallax Free' },
                   { label: 'Data', value: 'Stored in Supabase' },
                 ].map(row => (
@@ -73,6 +90,10 @@ export default function SettingsPage() {
                   </div>
                 ))}
               </div>
+              <button onClick={handleSignOut}
+                style={{ marginTop: 20, width: '100%', padding: '12px', background: 'transparent', border: '1px solid var(--border-hi)', borderRadius: 4, color: 'var(--text-secondary)', fontSize: 12, fontWeight: 700, fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer', letterSpacing: 1 }}>
+                SIGN OUT
+              </button>
             </div>
 
             {/* Save */}
