@@ -1,5 +1,5 @@
 'use client'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
@@ -273,7 +273,7 @@ function getLessonVisualState(
   return { state: 'locked', stars }
 }
 
-export default function GalaxyPage() {
+function GalaxyPageInner() {
   const router = useRouter()
   const svgRef = useRef<SVGSVGElement>(null)
 
@@ -1084,5 +1084,13 @@ export default function GalaxyPage() {
         />
       )}
     </div>
+  )
+}
+
+export default function GalaxyPage() {
+  return (
+    <Suspense fallback={null}>
+      <GalaxyPageInner />
+    </Suspense>
   )
 }
