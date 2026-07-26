@@ -23,3 +23,43 @@
   --sidebar-width: 220px;
   --transition: all 0.2s ease;
 }
+
+.hamburger-btn { display: none; }
+.sidebar-backdrop { display: none; }
+
+@media (max-width: 768px) {
+  :root { --sidebar-width: 0px; }
+
+  .hamburger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 240px !important;
+  }
+
+  .app-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 45;
+  }
+
+  .galaxy-split {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: minmax(320px, 55vh) 1fr !important;
+  }
+
+  .app-topbar {
+    padding: 0 16px !important;
+  }
+}

@@ -1,13 +1,14 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import { useProgress } from '@/hooks/useProgress'
 
 const MISSIONS = [
-  { icon: '🚀', title: 'Kinematic Equations Drill', desc: 'Master the four kinematic equations with 10 practice problems', xp: 120, progress: 0, href: '/learn/1/104' },
-  { icon: '⚡', title: "Newton's Laws Challenge", desc: "Test your understanding of all three of Newton's Laws", xp: 180, progress: 0, href: '/quiz' },
-  { icon: '🔋', title: 'Energy Conservation Quest', desc: 'Apply conservation of energy to solve 5 real-world scenarios', xp: 240, progress: 50, href: '/learn/3/304' },
+  { icon: '🚀', title: 'Kinematic Equations Drill', desc: 'Master the four kinematic equations with 10 practice problems', xp: 120, lessonId: 104, href: '/learn/1/104' },
+  { icon: '⚡', title: "Newton's Laws Challenge", desc: "Test your understanding of all three of Newton's Laws", xp: 180, lessonId: null, href: '/quiz' },
+  { icon: '🔋', title: 'Energy Conservation Quest', desc: 'Apply conservation of energy to solve 5 real-world scenarios', xp: 240, lessonId: 304, href: '/learn/3/304' },
 ]
 
 const QUICK_ACTIONS = [
@@ -20,6 +21,10 @@ const QUICK_ACTIONS = [
 export default function DashboardPage() {
   const router = useRouter()
   const { progress, loading } = useProgress()
+  const [userStars, setUserStars] = useState<Record<number, number>>({})
+  useEffect(() => {
+    fetch('/api/progress/stars').then(res => res.json()).then(setUserStars)
+  }, [])
 
   const xpToNextLevel = 1000
   const currentLevelXP = progress.xp % xpToNextLevel
@@ -128,9 +133,11 @@ export default function DashboardPage() {
                           <span style={{ fontSize: 11, color: 'var(--cyan)', fontFamily: 'JetBrains Mono, monospace' }}>+{m.xp} XP</span>
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 10, lineHeight: 1.5 }}>{m.desc}</div>
-                        <div style={{ height: 3, background: 'var(--border)', borderRadius: 2 }}>
-                          <div style={{ height: '100%', width: `${m.progress}%`, background: 'var(--cyan)', borderRadius: 2 }} />
-                        </div>
+                        {m.lessonId && (
+                          <div style={{ height: 3, background: 'var(--border)', borderRadius: 2 }}>
+                            <div style={{ height: '100%', width: `${Math.round(((userStars[m.lessonId] || 0) / 3) * 100)}%`, background: 'var(--cyan)', borderRadius: 2 }} />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

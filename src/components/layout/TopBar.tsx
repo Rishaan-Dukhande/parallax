@@ -23,7 +23,7 @@ export default function TopBar({
   ]
 
   return (
-    <div style={{
+    <div className="app-topbar" style={{
       borderBottom: '1px solid var(--border)',
       padding: '0 40px',
       height: 56,

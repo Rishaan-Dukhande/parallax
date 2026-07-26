@@ -79,7 +79,7 @@ function getStarPositions(count: number, radius = 28) {
 const UNITS = [
   {
     id: 1, name: 'Kinematics', x: 55, y: 39,
-    state: 'done', mastery: 94,
+    state: 'done',
     concepts: '5/5', labs: '3/3', assessment: 96,
     unlocks: [2], prereqs: [],
     description: 'Motion, velocity, and acceleration — the language of moving objects.',
@@ -95,7 +95,7 @@ const UNITS = [
   },
   {
     id: 2, name: "Newton's Laws", x: 72, y: 45,
-    state: 'done', mastery: 81,
+    state: 'done',
     concepts: '5/5', labs: '2/3', assessment: 82,
     unlocks: [3], prereqs: [1],
     description: 'Force, mass, and acceleration — the rules that govern every push and pull.',
@@ -110,7 +110,7 @@ const UNITS = [
   },
   {
     id: 3, name: 'Work & Energy', x: 74, y: 68,
-    state: 'active', mastery: 60,
+    state: 'active',
     concepts: '3/5', labs: '2/3', assessment: 82,
     unlocks: [4], prereqs: [2],
     description: 'Explore kinetic energy, potential energy, and conservation principles.',
@@ -126,7 +126,7 @@ const UNITS = [
   },
   {
     id: 4, name: 'Momentum', x: 49, y: 81,
-    state: 'locked', mastery: 0,
+    state: 'locked',
     concepts: '0/5', labs: '0/3', assessment: 0,
     unlocks: [5], prereqs: [3],
     description: 'The physics of collisions and conservation in isolated systems.',
@@ -142,7 +142,7 @@ const UNITS = [
   },
   {
     id: 5, name: 'Universal Gravity', x: 22, y: 61,
-    state: 'locked', mastery: 0,
+    state: 'locked',
     concepts: '0/5', labs: '0/3', assessment: 0,
     unlocks: [8], prereqs: [4],
     description: 'Orbital mechanics and gravitational fields across the cosmos.',
@@ -157,7 +157,7 @@ const UNITS = [
   },
   {
     id: 8, name: 'Rotation', x: 31, y: 22,
-    state: 'locked', mastery: 0,
+    state: 'locked',
     concepts: '0/5', labs: '0/3', assessment: 0,
     unlocks: [6], prereqs: [5],
     description: 'Angular motion, torque, and rotational inertia — the spinning side of mechanics.',
@@ -173,7 +173,7 @@ const UNITS = [
   },
   {
     id: 6, name: 'Oscillations', x: 74, y: 13,
-    state: 'locked', mastery: 0,
+    state: 'locked',
     concepts: '0/5', labs: '0/3', assessment: 0,
     unlocks: [7], prereqs: [8],
     description: 'Springs, pendulums, and the mathematics of repeating motion.',
@@ -189,7 +189,7 @@ const UNITS = [
   },
   {
     id: 7, name: 'E&M Fields', x: 104, y: 53,
-    state: 'locked', mastery: 0,
+    state: 'locked',
     concepts: '0/5', labs: '0/3', assessment: 0,
     unlocks: [], prereqs: [6],
     description: 'Electric fields, magnetic forces, and electromagnetism.',
@@ -219,6 +219,13 @@ const UNIT_PREREQS: Record<number, number[]> = (() => {
   }
   return p
 })()
+
+function getUnitMasteryPct(unit: typeof UNITS[number], userStars: Record<number, number>): number {
+  const maxStars = unit.subUnits.length * 3
+  if (maxStars === 0) return 0
+  const earnedStars = unit.subUnits.reduce((sum, s) => sum + (userStars[s.id] || 0), 0)
+  return Math.round((earnedStars / maxStars) * 100)
+}
 
 const stateColor = (state: string) => ({
   done: '#00F0FF', active: '#00FF88', locked: '#2A2D40',
@@ -413,6 +420,7 @@ function GalaxyPageInner() {
     return 'locked'
   }
   const activeUnitDynState = activeUnit ? getUnitDynState(activeUnit.id) : 'locked'
+  const activeUnitMastery = activeUnit ? getUnitMasteryPct(activeUnit, userStars) : 0
 
   // Constellation layout for the current zoomed unit (undefined → hub-and-spoke fallback)
   const constellation = zoomedUnit ? UNIT_CONSTELLATIONS[zoomedUnit] : undefined
@@ -490,7 +498,7 @@ function GalaxyPageInner() {
           activeTab="Energy"
         />
 
-        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 320px' }}>
+        <div className="galaxy-split" style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 320px' }}>
 
           {/* ── LEFT: STAR MAP CANVAS ── */}
           <div style={{
@@ -920,13 +928,13 @@ function GalaxyPageInner() {
                         <circle cx="40" cy="40" r="32" fill="none"
                           stroke={stateColor(activeUnitDynState)} strokeWidth="6" strokeLinecap="round"
                           strokeDasharray={`${2 * Math.PI * 32}`}
-                          strokeDashoffset={`${2 * Math.PI * 32 * (1 - activeUnit.mastery / 100)}`}
+                          strokeDashoffset={`${2 * Math.PI * 32 * (1 - activeUnitMastery / 100)}`}
                           transform="rotate(-90 40 40)"
                           style={{ transition: 'stroke-dashoffset 1s ease' }}
                         />
                       </svg>
                       <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                        <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-primary)' }}>{activeUnit.mastery}%</div>
+                        <div style={{ fontSize: 16, fontWeight: 900, color: 'var(--text-primary)' }}>{activeUnitMastery}%</div>
                         <div style={{ fontSize: 8, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace' }}>Mastery</div>
                       </div>
                     </div>

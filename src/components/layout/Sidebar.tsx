@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useProgress } from '@/hooks/useProgress'
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
 export default function Sidebar() {
   const pathname = usePathname()
   const { progress, loading } = useProgress()
+  const [mobileOpen, setMobileOpen] = useState(false)
   // Debug — remove later
   if (typeof window !== 'undefined') {
     window.addEventListener('progress-updated', (e: Event) => {
@@ -21,7 +22,16 @@ export default function Sidebar() {
     })
   }
   return (
-    <aside style={{ width: 'var(--sidebar-width)', minHeight: '100vh', background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, zIndex: 50 }}>
+    <>
+    <button
+      className="hamburger-btn"
+      onClick={() => setMobileOpen(o => !o)}
+      style={{ position: 'fixed', top: 14, left: 14, zIndex: 60, width: 40, height: 40, background: 'var(--bg-sidebar)', border: '1px solid var(--border)', borderRadius: 4, color: 'var(--cyan)', fontSize: 18, cursor: 'pointer' }}
+    >
+      {mobileOpen ? '✕' : '☰'}
+    </button>
+    {mobileOpen && <div className="sidebar-backdrop" onClick={() => setMobileOpen(false)} />}
+    <aside className={`app-sidebar ${mobileOpen ? 'mobile-open' : ''}`} style={{ width: 'var(--sidebar-width)', minHeight: '100vh', background: 'var(--bg-sidebar)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', position: 'fixed', top: 0, left: 0, zIndex: 50 }}>
       <div style={{ padding: '28px 24px 20px' }}>
         <div style={{ fontSize: 22, fontWeight: 900, color: 'var(--cyan)', letterSpacing: 3, textShadow: '0 0 20px var(--cyan-glow)', fontFamily: 'Orbitron, monospace' }}>PARALLAX</div>
         <div style={{ fontSize: 10, color: 'var(--text-secondary)', letterSpacing: 2, marginTop: 2, fontFamily: 'JetBrains Mono, monospace' }}>LEVEL 42 NAVIGATOR</div>
@@ -31,7 +41,7 @@ export default function Sidebar() {
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href
           return (
-            <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
+            <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }} onClick={() => setMobileOpen(false)}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 12px', borderRadius: 4, marginBottom: 2, background: isActive ? 'var(--cyan-dim)' : 'transparent', borderLeft: isActive ? '2px solid var(--cyan)' : '2px solid transparent', color: isActive ? 'var(--cyan)' : 'var(--text-secondary)', fontSize: 12, fontWeight: isActive ? 700 : 500, letterSpacing: 1, fontFamily: 'JetBrains Mono, monospace', cursor: 'pointer', transition: 'var(--transition)' }}>
                 <span style={{ fontSize: 14 }}>{item.icon}</span>
                 {item.label.toUpperCase()}
@@ -76,5 +86,6 @@ export default function Sidebar() {
         ))}
       </div>
     </aside>
+    </>
   )
 }
