@@ -70,28 +70,43 @@ html, body {
   --sidebar-width: 220px;
   --transition: all 0.2s ease;
 }
-:root {
-  --bg-base: #07080F;
-  --bg-sidebar: #0D0E1A;
-  --bg-surface: #0F1120;
-  --bg-surface-hi: #161830;
-  --bg-card: #111328;
-  --cyan: #00F0FF;
-  --cyan-dim: rgba(0, 240, 255, 0.12);
-  --cyan-glow: rgba(0, 240, 255, 0.35);
-  --purple: #9B5DFF;
-  --purple-dim: rgba(155, 93, 255, 0.12);
-  --purple-glow: rgba(155, 93, 255, 0.35);
-  --red: #FF0044;
-  --red-dim: rgba(255, 0, 68, 0.12);
-  --red-glow: rgba(255, 0, 68, 0.35);
-  --orange: #FF6B2B;
-  --green: #00FF88;
-  --text-primary: #E8EEFF;
-  --text-secondary: #6B7299;
-  --text-muted: #3D4266;
-  --border: #1A1D35;
-  --border-hi: #252847;
-  --sidebar-width: 220px;
-  --transition: all 0.2s ease;
+
+.hamburger-btn { display: none; }
+.sidebar-backdrop { display: none; }
+
+@media (max-width: 768px) {
+  :root { --sidebar-width: 0px; }
+
+  .hamburger-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .app-sidebar {
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    width: 240px !important;
+  }
+
+  .app-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 45;
+  }
+
+  .galaxy-split {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: minmax(320px, 55vh) 1fr !important;
+  }
+
+  .app-topbar {
+    padding: 0 16px !important;
+  }
 }
