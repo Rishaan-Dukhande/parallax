@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { label: 'Progress Galaxy', href: '/galaxy', icon: '✦' },
   { label: 'Quick Quiz', href: '/quiz', icon: '🎯' },
   { label: 'Missions', href: '/missions', icon: '◎' },
+  { label: 'Leaderboards', href: '/league', icon: '🏆' },
   { label: 'Research Lab', href: '/lab', icon: '⚗' },
   { label: 'Settings', href: '/settings', icon: '⚙' },
 ]
