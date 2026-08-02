@@ -1405,7 +1405,7 @@ function AIReviewPopup({
           {loading && !streaming && <div style={{ display: 'flex', justifyContent: 'flex-start' }}><div style={{ background: 'var(--bg-surface-hi)', border: '1px solid var(--border-hi)', borderRadius: '12px 12px 12px 4px', padding: '10px 14px', fontSize: 13, color: 'var(--text-muted)', fontStyle: 'italic' }}>Parallax AI is thinking...</div></div>}
         </div>
         <div style={{ padding: '16px 20px', borderTop: '1px solid var(--border)', display: 'flex', gap: 8 }}>
-          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && input.trim() && !loading) { sendMessage(input.trim()); setInput('') } }} placeholder="Ask a follow-up..." style={{ flex: 1, background: 'var(--bg-base)', border: '1px solid var(--border-hi)', borderRadius: 4, padding: '10px 14px', color: 'var(--text-primary)', fontSize: 13, outline: 'none' }} />
+          <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && input.trim() && !loading) { sendMessage(input.trim()); setInput('') } }} placeholder="Ask a follow-up..." style={{ flex: 1, background: 'var(--bg-base)', border: '1px solid var(--border-hi)', borderRadius: 4, padding: '10px 14px', color: 'var(--text-primary)', fontSize: 16, outline: 'none' }} />
           <button onClick={() => { if (input.trim() && !loading) { sendMessage(input.trim()); setInput('') } }} style={{ background: 'var(--purple)', border: 'none', borderRadius: 4, width: 44, cursor: 'pointer', fontSize: 16, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>▶</button>
         </div>
         <div style={{ padding: '0 20px 20px', display: 'flex', gap: 10 }}>
@@ -1651,6 +1651,7 @@ export default function LearnPage() {
       {/* Floating AI tutor button — always visible during lesson */}
       {phase !== 'complete' && (
         <button
+          className={aiDrawerOpen ? 'ai-toggle-open' : ''}
           onClick={() => setAiDrawerOpen(o => !o)}
           style={{
             position: 'fixed',

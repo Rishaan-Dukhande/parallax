@@ -608,7 +608,7 @@ function QuizContent() {
                   <input value={chatInput} onChange={e => setChatInput(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter' && chatInput.trim() && !chatLoading) { sendChatMessage(chatInput.trim()); setChatInput('') } }}
                     placeholder={submitted ? 'Ask anything...' : 'Ask for a hint...'}
-                    style={{ flex: 1, background: 'var(--bg-base)', border: '1px solid var(--border-hi)', borderRadius: 4, padding: '10px 14px', color: 'var(--text-primary)', fontSize: 13, outline: 'none' }} />
+                    style={{ flex: 1, background: 'var(--bg-base)', border: '1px solid var(--border-hi)', borderRadius: 4, padding: '10px 14px', color: 'var(--text-primary)', fontSize: 16, outline: 'none' }} />
                   <button onClick={() => { if (chatInput.trim() && !chatLoading) { sendChatMessage(chatInput.trim()); setChatInput('') } }}
                     disabled={!chatInput.trim() || chatLoading}
                     style={{ background: chatInput.trim() ? 'var(--purple)' : 'var(--border)', border: 'none', borderRadius: 4, width: 44, cursor: chatInput.trim() ? 'pointer' : 'not-allowed', fontSize: 16, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

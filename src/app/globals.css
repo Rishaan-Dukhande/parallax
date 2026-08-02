@@ -139,4 +139,8 @@ html, body {
     width: 100% !important;
     z-index: 70;
   }
+
+  .ai-toggle-open {
+    display: none !important;
+  }
 }

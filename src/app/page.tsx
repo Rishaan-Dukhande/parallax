@@ -93,7 +93,7 @@ export default function LandingPage() {
         </div>
 
         <h1 style={{
-          fontSize: 72,
+          fontSize: 'clamp(40px, 11vw, 72px)',
           fontWeight: 900,
           color: '#E8EEFF',
           marginBottom: 8,
@@ -106,7 +106,7 @@ export default function LandingPage() {
         </h1>
 
         <div style={{
-          fontSize: 18,
+          fontSize: 'clamp(14px, 4vw, 18px)',
           color: 'rgba(232,238,255,0.6)',
           marginBottom: 16,
           fontFamily: 'DM Sans, sans-serif',
@@ -116,7 +116,7 @@ export default function LandingPage() {
         </div>
 
         <div style={{
-          fontSize: 13,
+          fontSize: 'clamp(11px, 3vw, 13px)',
           color: 'rgba(107,114,153,0.8)',
           marginBottom: 56,
           fontFamily: 'JetBrains Mono, monospace',
