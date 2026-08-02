@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 
 const SIEGE_BOSS_HP = 20000
 const ROOM_CODE_LENGTH = 4
@@ -35,6 +35,7 @@ function generateRoomCode(): string {
 
 export default function SiegeBattlePage() {
   const router = useRouter()
+  const supabase = createClient()
   const [screen, setScreen] = useState<'lobby' | 'waiting' | 'battle' | 'victory' | 'defeat'>('lobby')
   const [roomCode, setRoomCode] = useState('')
   const [joinCode, setJoinCode] = useState('')

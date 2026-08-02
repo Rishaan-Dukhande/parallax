@@ -728,7 +728,7 @@ function GalaxyPageInner() {
 
                   {/* Galactic mastery radius indicator */}
                   {(() => {
-                    const doneCount = zoomedUnitData.subUnits.filter(s => s.state === 'done').length
+                    const doneCount = zoomedUnitData.subUnits.filter(s => getLessonVisualState(s.id, userStars, s.state).state === 'done').length
                     const total = zoomedUnitData.subUnits.length
                     const radiusPct = 8 + (doneCount / total) * 22
                     return (
@@ -884,22 +884,15 @@ function GalaxyPageInner() {
             )}
 
             {/* Bottom bar */}
-            <div style={{
+            <div className="galaxy-footer-bar" style={{
               position: 'absolute', bottom: 0, left: 0, right: 0,
               borderTop: '1px solid var(--border)', padding: '10px 24px',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              display: 'flex', alignItems: 'center',
             }}>
               <div>
                 <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'JetBrains Mono, monospace', letterSpacing: 1 }}>Navigation Vector</div>
                 <div style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'JetBrains Mono, monospace' }}>
-                  {zoomedUnit ? `Unit ${zoomedUnit} · ${zoomedUnitData?.subUnits.filter(s => s.state === 'done').length}/${zoomedUnitData?.subUnits.length} lessons complete` : 'Galactic Coordinate: 42.08.192'}
-                </div>
-              </div>
-              <div style={{ background: 'var(--purple-dim)', border: '1px solid var(--purple)', borderRadius: 4, padding: '8px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span style={{ fontSize: 14 }}>🔔</span>
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--purple)', fontFamily: 'JetBrains Mono, monospace' }}>Parallax Shift Detected</div>
-                  <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>Top 5% of this module's navigators.</div>
+                  {zoomedUnit ? `Unit ${zoomedUnit} · ${zoomedUnitData?.subUnits.filter(s => getLessonVisualState(s.id, userStars, s.state).state === 'done').length}/${zoomedUnitData?.subUnits.length} lessons complete` : 'Galactic Coordinate: 42.08.192'}
                 </div>
               </div>
             </div>

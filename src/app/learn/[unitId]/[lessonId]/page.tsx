@@ -1210,7 +1210,7 @@ function LessonAIDrawer({
   if (!isOpen) return null
 
   return (
-    <div style={{
+    <div className="ai-drawer" style={{
       position: 'fixed',
       top: 0,
       right: 0,

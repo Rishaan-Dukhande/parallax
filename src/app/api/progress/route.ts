@@ -5,17 +5,14 @@ import {
   saveLessonAttempt,
   saveQuizAttempt,
 } from '@/lib/supabase'
-import { getCurrentUserId } from '@/lib/auth'
+import { getCurrentUser, getCurrentUserId } from '@/lib/auth'
 
 export async function GET() {
   try {
-    const userId = await getCurrentUserId()
-    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    const progress = await getOrCreateUserProgress(userId)
-    if (!progress) {
-      console.error('User not found in database')
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    const user = await getCurrentUser()
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const progress = await getOrCreateUserProgress(user.id, user.email)
+    if (!progress) return NextResponse.json({ error: 'User not found' }, { status: 404 })
     return NextResponse.json(progress)
   } catch (err) {
     console.error('GET /api/progress error:', err)

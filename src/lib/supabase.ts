@@ -1,9 +1,10 @@
+import 'server-only'
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 export async function getUserProgress(userId: string) {
   const { data, error } = await supabase
@@ -76,15 +77,26 @@ export async function saveQuizAttempt(userId: string, topic: string, score: numb
   return data
 }
 
-export async function getOrCreateUserProgress(userId: string) {
+export async function getOrCreateUserProgress(userId: string, email?: string | null) {
   const existing = await getUserProgress(userId)
   if (existing) return existing
+  const defaultName = email ? email.split('@')[0] : 'Navigator'
   const { data, error } = await supabase
     .from('user_progress')
-    .insert({ user_id: userId, xp: 0, coins: 0, mastery_score: 0, level: 1, streak_days: 0 })
+    .insert({ user_id: userId, xp: 0, coins: 0, mastery_score: 0, level: 1, streak_days: 0, display_name: defaultName })
     .select()
     .single()
   if (error) { console.error('Error creating user progress:', error); return null }
+  return data
+}
+
+export async function getLeaderboard(limit = 50) {
+  const { data, error } = await supabase
+    .from('user_progress')
+    .select('user_id, display_name, xp, streak_days')
+    .order('xp', { ascending: false })
+    .limit(limit)
+  if (error) { console.error('Error fetching leaderboard:', error); return [] }
   return data
 }
 

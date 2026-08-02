@@ -1,18 +1,9 @@
 'use client'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Sidebar from '@/components/layout/Sidebar'
 import TopBar from '@/components/layout/TopBar'
 import { useProgress } from '@/hooks/useProgress'
-
-const MOCK_LEADERBOARD = [
-  { rank: 1, name: 'Aria K.', xp: 12450, league: 'Quasar', streak: 28 },
-  { rank: 2, name: 'You', xp: 0, league: 'Quasar', streak: 0, isYou: true },
-  { rank: 3, name: 'Marcus T.', xp: 8920, league: 'Quasar', streak: 15 },
-  { rank: 4, name: 'Priya S.', xp: 7340, league: 'Quasar', streak: 9 },
-  { rank: 5, name: 'Devon R.', xp: 6210, league: 'Nebula', streak: 21 },
-  { rank: 6, name: 'Yuki M.', xp: 5890, league: 'Nebula', streak: 6 },
-  { rank: 7, name: 'Chloe B.', xp: 4320, league: 'Nebula', streak: 3 },
-]
 
 const LEAGUE_TIERS = [
   { name: 'Nebula', color: '#6B7299', min: 0 },
@@ -25,15 +16,38 @@ export default function LeaguePage() {
   const router = useRouter()
   const { progress, loading } = useProgress()
 
-  const leaderboard = MOCK_LEADERBOARD.map(p =>
-    p.isYou ? { ...p, xp: progress.xp, streak: progress.streak_days } : p
-  ).sort((a, b) => b.xp - a.xp).map((p, i) => ({ ...p, rank: i + 1 }))
+  const [rawLeaderboard, setRawLeaderboard] = useState<{ user_id: string; display_name: string | null; xp: number; streak_days: number }[]>([])
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetch('/api/league').then(res => res.json()).then(data => {
+      setRawLeaderboard(data.leaderboard || [])
+      setCurrentUserId(data.currentUserId || null)
+    })
+  }, [])
+
+  function tierForXp(xp: number) {
+    return [...LEAGUE_TIERS].reverse().find(t => xp >= t.min)?.name ?? LEAGUE_TIERS[0].name
+  }
+
+  const myTier = tierForXp(progress.xp)
+
+  const leaderboard = rawLeaderboard
+    .sort((a, b) => b.xp - a.xp)
+    .map((p, i) => ({
+      rank: i + 1,
+      name: p.display_name || 'Navigator',
+      xp: p.xp,
+      streak: p.streak_days,
+      league: tierForXp(p.xp),
+      isYou: p.user_id === currentUserId,
+    }))
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-base)' }}>
       <Sidebar />
       <main style={{ marginLeft: 'var(--sidebar-width)', flex: 1, display: 'flex', flexDirection: 'column' }}>
-        <TopBar title="QUASAR LEAGUE" activeTab="Mass" />
+        <TopBar title={`${myTier.toUpperCase()} LEAGUE`} activeTab="Mass" />
         <div style={{ flex: 1, padding: '40px', maxWidth: 900 }}>
 
           {/* Siege Battle CTA */}
@@ -52,7 +66,7 @@ export default function LeaguePage() {
           {/* League tiers */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10, marginBottom: 32 }}>
             {LEAGUE_TIERS.map(tier => {
-              const isCurrentTier = progress.league_rank === tier.name
+              const isCurrentTier = myTier === tier.name
               return (
                 <div key={tier.name} style={{ background: isCurrentTier ? `${tier.color}18` : 'var(--bg-surface)', border: `1px solid ${isCurrentTier ? tier.color : 'var(--border)'}`, borderRadius: 8, padding: '14px', textAlign: 'center' }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: isCurrentTier ? tier.color : 'var(--text-muted)', marginBottom: 4, fontFamily: 'JetBrains Mono, monospace' }}>{tier.name}</div>
@@ -70,6 +84,11 @@ export default function LeaguePage() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {leaderboard.length <= 1 && (
+              <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 12, fontFamily: 'JetBrains Mono, monospace' }}>
+                You're the only navigator so far — invite friends to fill out the leaderboard.
+              </div>
+            )}
             {leaderboard.map((player) => {
               const isYou = player.isYou
               const rankColor = player.rank === 1 ? '#FFD700' : player.rank === 2 ? '#C0C0C0' : player.rank === 3 ? '#CD7F32' : 'var(--text-muted)'

@@ -1,10 +1,11 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { createClient } from '@/lib/supabase/client'
 
 export default function LandingPage() {
   const router = useRouter()
+  const supabase = createClient()
 
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [checkingAuth, setCheckingAuth] = useState(true)

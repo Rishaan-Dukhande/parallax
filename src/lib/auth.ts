@@ -5,3 +5,10 @@ export async function getCurrentUserId(): Promise<string | null> {
   const { data: { user } } = await supabase.auth.getUser()
   return user?.id ?? null
 }
+
+export async function getCurrentUser(): Promise<{ id: string; email: string | null } | null> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  return { id: user.id, email: user.email ?? null }
+}
