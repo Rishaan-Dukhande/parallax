@@ -121,6 +121,18 @@ html, body {
 
   .galaxy-footer-bar { display: none; }
 
+  .dash-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dash-actions-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .dash-missions-grid {
+    grid-template-columns: 1fr !important;
+  }
+
   .ai-drawer {
     position: fixed !important;
     inset: 0 !important;

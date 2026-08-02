@@ -48,7 +48,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Stats row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
+          <div className="dash-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
 
             {/* XP card — clickable → galaxy */}
             <div className="glass-card" style={{ padding: 24, cursor: 'pointer' }} onClick={() => router.push('/galaxy')}>
@@ -98,7 +98,7 @@ export default function DashboardPage() {
           {/* Quick actions */}
           <div style={{ marginBottom: 32 }}>
             <h2 style={{ fontSize: 12, fontWeight: 900, color: 'var(--text-primary)', letterSpacing: 2, fontFamily: 'JetBrains Mono, monospace', marginBottom: 16 }}>QUICK ACTIONS</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            <div className="dash-actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
               {QUICK_ACTIONS.map(action => (
                 <button key={action.href} onClick={() => router.push(action.href)}
                   style={{ background: 'var(--bg-surface)', border: `1px solid ${action.color}33`, borderRadius: 8, padding: '16px', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s' }}
@@ -113,7 +113,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Missions + sidebar */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24 }}>
+          <div className="dash-missions-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24 }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <h2 style={{ fontSize: 12, fontWeight: 900, color: 'var(--text-primary)', letterSpacing: 2, fontFamily: 'JetBrains Mono, monospace' }}>TODAY'S MISSIONS</h2>
