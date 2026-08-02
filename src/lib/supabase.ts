@@ -27,6 +27,14 @@ export async function updateUserProgress(userId: string, updates: { xp?: number;
   return data
 }
 
+function computeStreak(lastActive: string | null, currentStreak: number): number {
+  const today = new Date().toISOString().split('T')[0]
+  if (lastActive === today) return currentStreak
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
+  if (lastActive === yesterday) return currentStreak + 1
+  return 1
+}
+
 export async function addXPAndCoins(userId: string, xpToAdd: number, coinsToAdd: number, newMastery?: number) {
   const current = await getUserProgress(userId)
   if (!current) return null
@@ -38,6 +46,7 @@ export async function addXPAndCoins(userId: string, xpToAdd: number, coinsToAdd:
     coins: newCoins,
     level: newLevel,
     last_active: new Date().toISOString().split('T')[0],
+    streak_days: computeStreak(current.last_active, current.streak_days || 0),
   }
   if (newMastery !== undefined) updates.mastery_score = newMastery
   return updateUserProgress(userId, updates)

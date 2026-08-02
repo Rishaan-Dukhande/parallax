@@ -46,7 +46,13 @@ function StreakIndicator({ streak, direction }: { streak: number; direction: 'up
 }
 
 function QuizContent() {
-  const masteryScore = 67
+  const [masteryScore, setMasteryScore] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/progress').then(res => res.json()).then(data => {
+      if (typeof data.mastery_score === 'number') setMasteryScore(data.mastery_score)
+    })
+  }, [])
 
   // ── Session state ──
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null)

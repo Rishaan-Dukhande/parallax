@@ -1524,7 +1524,13 @@ export default function LearnPage() {
   const [attemptNumber, setAttemptNumber] = useState(1)
   const [missedConcepts, setMissedConcepts] = useState<string[]>([])
   const [learningStyle] = useState<LearningStyle>('intuitive')
-  const masteryScore = 67
+  const [masteryScore, setMasteryScore] = useState(0)
+
+  useEffect(() => {
+    fetch('/api/progress').then(res => res.json()).then(data => {
+      if (typeof data.mastery_score === 'number') setMasteryScore(data.mastery_score)
+    })
+  }, [])
 
   // Card navigation
   const [cardIndex, setCardIndex] = useState(0)
