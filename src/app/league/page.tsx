@@ -48,7 +48,7 @@ export default function LeaguePage() {
       <Sidebar />
       <main style={{ marginLeft: 'var(--sidebar-width)', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <TopBar title={`${myTier.toUpperCase()} LEAGUE`} activeTab="Mass" />
-        <div style={{ flex: 1, padding: '40px', maxWidth: 900 }}>
+        <div style={{ flex: 1, padding: '40px' }}>
 
           {/* Siege Battle CTA */}
           <div style={{ background: 'linear-gradient(135deg, rgba(255,0,68,0.15), rgba(155,93,255,0.1))', border: '1px solid rgba(255,0,68,0.3)', borderRadius: 12, padding: '24px 28px', marginBottom: 32, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

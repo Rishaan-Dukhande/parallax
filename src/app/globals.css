@@ -112,7 +112,11 @@ html, body {
   }
 
   .app-topbar {
-    padding: 0 16px !important;
+    padding: 0 16px 0 60px !important;
+  }
+
+  .topbar-tab-soon {
+    display: none;
   }
 
   .galaxy-footer-bar { display: none; }

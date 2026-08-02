@@ -61,6 +61,7 @@ export default function TopBar({
           return (
             <div
               key={tab.label}
+              className={tab.available ? '' : 'topbar-tab-soon'}
               title={`${tab.subject}${tab.available ? '' : ' — Coming Soon'}`}
               onClick={() => tab.available && router.push(tab.href)}
               style={{

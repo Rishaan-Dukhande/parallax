@@ -56,7 +56,7 @@ export default function LabPage() {
       <Sidebar />
       <main style={{ marginLeft: 'var(--sidebar-width)', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <TopBar title="RESEARCH LAB" activeTab="Mass" />
-        <div style={{ flex: 1, padding: '40px', maxWidth: 860 }}>
+        <div style={{ flex: 1, padding: '40px' }}>
 
           <div style={{ marginBottom: 32 }}>
             <h1 style={{ fontSize: 28, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 8 }}>Research Lab</h1>

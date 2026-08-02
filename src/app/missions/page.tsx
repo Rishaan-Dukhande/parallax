@@ -49,7 +49,7 @@ export default function MissionsPage() {
       <Sidebar />
       <main style={{ marginLeft: 'var(--sidebar-width)', flex: 1, display: 'flex', flexDirection: 'column' }}>
         <TopBar title="MISSIONS" activeTab="Mass" />
-        <div style={{ flex: 1, padding: '40px', maxWidth: 900 }}>
+        <div style={{ flex: 1, padding: '40px' }}>
 
           <div style={{ marginBottom: 32 }}>
             <h1 style={{ fontSize: 28, fontWeight: 900, color: 'var(--text-primary)', marginBottom: 6 }}>Mission Control</h1>
